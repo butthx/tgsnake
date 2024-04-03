@@ -110,7 +110,7 @@ export function filter(key: string | string[], ctx: TypeUpdate | Raw.TypeUpdates
   };
   if (Array.isArray(key)) {
     for (const k of key) {
-      if (k === 'any' || k in ctx || ('className' in ctx && k === ctx.className)) return true;
+      if (k === 'any' || ctx[k] || ('className' in ctx && k === ctx.className)) return true;
       let sk = k.split('.');
       if (sk.length) {
         if (ctx[aliases[sk[0]]] && ctx[aliases[sk[0]]][sk[1]] !== undefined) {
@@ -119,7 +119,7 @@ export function filter(key: string | string[], ctx: TypeUpdate | Raw.TypeUpdates
       }
     }
   } else {
-    if (key === 'any' || key in ctx || ('className' in ctx && key === ctx.className)) return true;
+    if (key === 'any' || ctx[key] || ('className' in ctx && key === ctx.className)) return true;
     let sk = key.split('.');
     if (sk.length) {
       if (ctx[aliases[sk[0]]] && ctx[aliases[sk[0]]][sk[1]] !== undefined) {

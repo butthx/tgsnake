@@ -7,21 +7,35 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { Storages, Raws, Helpers, path, cwd, Buffer } from '../platform.deno.ts';
+import { Storages, Raws, Helpers, path, Buffer } from '../platform.deno.ts';
 import fs from 'node:fs';
 import { Logger } from '../Context/Logger.ts';
 
 export class SnakeSession extends Storages.BaseSession {
   private _name!: string;
-  constructor(name: string) {
+  private _sessionDir!: string;
+  private _sessionExt!: string;
+  private _cacheDir!: string;
+  private _cacheExt!: string;
+  constructor(
+    name: string,
+    sessionDir: string,
+    sessionExt: string,
+    cacheDir: string,
+    cacheExt: string,
+  ) {
     super();
     this._name = name;
+    this._sessionDir = sessionDir;
+    this._sessionExt = sessionExt;
+    this._cacheDir = cacheDir;
+    this._cacheExt = cacheExt;
   }
   async load() {
-    let sessionName = `${this._name}.session`;
-    if (fs.existsSync(path.join(cwd(), sessionName))) {
+    let sessionName = `${this._name}.${this._sessionExt.replace(/^\./, '')}`;
+    if (fs.existsSync(path.join(this._sessionDir, sessionName))) {
       let start = Math.floor(Date.now() / 1000);
-      let bytes = fs.readFileSync(path.join(cwd(), sessionName));
+      let bytes = fs.readFileSync(path.join(this._sessionDir, sessionName));
       Logger.debug(`Session have a ${bytes.length} bytes`);
       this._dcId = bytes.readUInt8(0); // 1
       Logger.debug(`Found dcId: ${this._dcId}.`);
@@ -46,18 +60,18 @@ export class SnakeSession extends Storages.BaseSession {
     }
   }
   async save() {
-    let sessionName = `${this._name}.session`;
-    let cacheName = `${this._name}.cache`;
+    let sessionName = `${this._name}.${this._sessionExt.replace(/^\./, '')}`;
+    let cacheName = `${this._name}.${this._cacheExt.replace(/^\./, '')}`;
     // save session when it unavailable.
-    if (!fs.existsSync(path.join(cwd(), sessionName))) {
+    if (!fs.existsSync(path.join(this._sessionDir, sessionName))) {
       fs.writeFileSync(
-        path.join(cwd(), sessionName),
+        path.join(this._sessionDir, sessionName),
         Buffer.from(Helpers.base64urlTobase64(await this.exportString()), 'base64'),
       );
-      Logger.info(`Session saved to: "${path.join(cwd(), sessionName)}".`);
+      Logger.info(`Session saved to: "${path.join(this._sessionDir, sessionName)}".`);
     }
-    fs.writeFileSync(path.join(cwd(), cacheName), await this._makeCache());
-    Logger.info(`Cache saved to: "${path.join(cwd(), cacheName)}".`);
+    fs.writeFileSync(path.join(this._cacheDir, cacheName), await this._makeCache());
+    Logger.info(`Cache saved to: "${path.join(this._cacheDir, cacheName)}".`);
   }
   /**
    * Load the tgsnake peers cache.
@@ -71,10 +85,10 @@ export class SnakeSession extends Storages.BaseSession {
     ]
   > {
     let peer: Array<any> = [];
-    let cacheName = `${this._name}.cache`;
+    let cacheName = `${this._name}.${this._cacheExt.replace(/^\./, '')}`;
     let e2e: Array<Storages.SecretChat> = [];
-    if (fs.existsSync(path.join(cwd(), cacheName))) {
-      let buffer = fs.readFileSync(path.join(cwd(), cacheName));
+    if (fs.existsSync(path.join(this._cacheDir, cacheName))) {
+      let buffer = fs.readFileSync(path.join(this._cacheDir, cacheName));
       if (buffer[0] === 2) {
         Logger.info(`Load cache version: 2`);
         let bytes = new Raws.BytesIO(buffer.slice(1));
@@ -331,13 +345,19 @@ export async function buildSecretChatFromBytes(bytes: Buffer): Promise<Storages.
   return secretChat;
 }
 
-export function generateName(base: string): string {
+export function generateName(
+  base: string,
+  loginPath: string,
+  loginExt: string,
+  cachePath: string,
+  cacheExt: string,
+): string {
   let i = 0;
   while (true) {
     let name = i === 0 ? base : `${base}${i}`;
     if (
-      !fs.existsSync(path.join(cwd(), `${name}.session`)) &&
-      !fs.existsSync(path.join(cwd(), `${name}.cache`))
+      !fs.existsSync(path.join(loginPath, `${name}.${loginExt.replace(/^\./, '')}`)) &&
+      !fs.existsSync(path.join(cachePath, `${name}.${cacheExt.replace(/^\./, '')}`))
     ) {
       return name;
     }

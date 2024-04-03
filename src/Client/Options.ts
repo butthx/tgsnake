@@ -37,6 +37,10 @@ export interface Options {
    * Use a special plugin.
    */
   plugins?: Array<PluginApiFn | PluginApiObj>;
+  /**
+   * Experimental option that may be unstable, we do not recommend using this option. You must bear every risk that might occur.
+   */
+  experimental?: ExperimentalOptions;
 }
 export interface LoginWithSession {
   /**
@@ -60,4 +64,52 @@ export interface LoginWithSession {
    * default is "tgsnake"
    */
   sessionName?: string;
+}
+export interface ExperimentalOptions {
+  /**
+   * When a user is offline state, the user will automatically be forced to go back online.
+   */
+  alwaysOnline?: boolean;
+  /**
+   * When the new client is started, will it display a status user is online.
+   */
+  onlineOnStart?: boolean;
+  /**
+   * Implement the shutdown function by default into the client class. By default this option is true.
+   */
+  shutdown?: boolean;
+  /**
+   * Apply custom paths for some configurations such as login info and cache.
+   */
+  customPath?: CustomablePath;
+  /**
+   * Check the channel every time given. If no updates are received after the 'syncTimeout' timeout it will call the getChannelDifference function for synchronization.
+   */
+  syncEvery?: number;
+  /**
+   * Time delay for calling the getChannelDifference function for synchronization.
+   */
+  syncTimeout?: number;
+  /**
+   * For supergroups/channels that send messages too often so that after 2 minutes the client is running there are no more updates from Telegram. You can use this option to force the client to synchronize with predefined intervals and delays.
+   */
+  alwaysSync?: boolean;
+}
+export interface CustomablePath {
+  /**
+   * The location or folder where all login information will be stored. This option only works when forceDotSession is active. And don't use special sessions like RedisSession.
+   */
+  loginDir?: string;
+  /**
+   * File extension of saved login info. By default the file extension is 'session'. This option only works when forceDotSession is active. And don't use special sessions like RedisSession.
+   */
+  loginExt?: string;
+  /**
+   * The location or folder where all cache will be stored. This option only works when forceDotSession is active. And don't use special sessions like RedisSession.
+   */
+  cacheDir?: string;
+  /**
+   * File extension of saved cache. By default the file extension is 'cache'. This option only works when forceDotSession is active. And don't use special sessions like RedisSession.
+   */
+  cacheExt?: string;
 }
