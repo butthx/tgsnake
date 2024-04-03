@@ -26,7 +26,7 @@ export class MainContext<T> extends Composer<T> {
     throw error;
   };
   protected _plugin: TgsnakeApi = new TgsnakeApi();
-  protected _localPtsChat: Map<bigint, number> = new Map<bigint, number>();
+  protected _localPtsChat: Map<bigint, Array<number>> = new Map<bigint, Array<number>>();
   protected _commonBox: Map<string, number> = new Map<string, number>();
   constructor() {
     super();
@@ -114,7 +114,7 @@ export class MainContext<T> extends Composer<T> {
         if ('pts' in _update) {
           const _channelId = getChannelId(_update);
           if (_channelId !== BigInt(0)) {
-            this._localPtsChat.set(_channelId, _update.pts as number);
+            this._localPtsChat.set(_channelId, [_update.pts as number, Date.now()]);
           } else {
             this._commonBox.set('pts', _update.pts as number);
           }
@@ -136,7 +136,7 @@ export class MainContext<T> extends Composer<T> {
                     new Raw.updates.GetChannelDifference({
                       channel: await client._client.resolvePeer(_channelId),
                       filter: new Raw.ChannelMessagesFilterEmpty(),
-                      pts: _localPts,
+                      pts: _localPts[0],
                       limit: 100,
                     }),
                   );
@@ -146,38 +146,21 @@ export class MainContext<T> extends Composer<T> {
                   }
                   if (diff instanceof Raw.updates.ChannelDifferenceTooLong) {
                     // handle force sync soon.
-                    Logger.debug(`Skipped getChannelDifference results due to too long difference`);
-                    return;
+                    // Logger.debug(`Skipped getChannelDifference results due to too long difference`);
+                    // return;
+                    this._localPtsChat.set(_channelId, [
+                      ((diff as Raw.updates.ChannelDifferenceTooLong).dialog as Raw.Dialog)
+                        .pts as number,
+                      Date.now(),
+                    ]);
+                  } else {
+                    // @ts-ignore
+                    this._localPtsChat.set(_channelId, [diff.pts, Date.now()]);
                   }
-                  // @ts-ignore
-                  this._localPtsChat.set(_channelId, diff.pts);
                   if (diff instanceof Raw.updates.ChannelDifferenceEmpty) {
                     Logger.debug(`Skipped getChannelDifference results due to empty difference`);
                   }
-                  if (diff instanceof Raw.updates.ChannelDifference) {
-                    const { newMessages, otherUpdates, chats, users } =
-                      diff as Raw.updates.ChannelDifference;
-                    if (newMessages) {
-                      for (const newMessage of newMessages) {
-                        parsedUpdate.push(
-                          await Update.parse(
-                            client,
-                            new Raw.UpdateNewMessage({
-                              message: newMessage,
-                              pts: _localPts,
-                              ptsCount: 0,
-                            }),
-                            chats,
-                            users,
-                          ),
-                        );
-                      }
-                    } else if (otherUpdates) {
-                      for (const otherUpdate of otherUpdates) {
-                        parsedUpdate.push(await Update.parse(client, otherUpdate, chats, users));
-                      }
-                    }
-                  }
+                  parsedUpdate.push(...(await this.processChannelDifference(client, diff)));
                   if (!diff.final) {
                     return execGetDiff();
                   }
@@ -198,55 +181,7 @@ export class MainContext<T> extends Composer<T> {
         } else if (_update instanceof Raw.UpdatesTooLong) {
           Logger.debug(`Got ${_update.className}`, _update);
         } else {
-          let _chats, _users;
-          if (_update instanceof Raw.UpdateNewChannelMessage) {
-            if (!('message' in _update && _update.message instanceof Raw.MessageEmpty)) {
-              if (_update.message.peerId && 'channelId' in _update.message.peerId) {
-                try {
-                  const diff = await client.api.invoke(
-                    new Raw.updates.GetChannelDifference({
-                      channel: await client._client.resolvePeer(
-                        Helpers.getChannelId(_update.message.peerId.channelId),
-                      ),
-                      filter: new Raw.ChannelMessagesFilter({
-                        ranges: [
-                          new Raw.MessageRange({
-                            minId: _update.message.id,
-                            maxId: _update.message.id,
-                          }),
-                        ],
-                      }),
-                      pts: _update.pts - _update.ptsCount,
-                      limit: _update.pts,
-                    }),
-                  );
-                  if (!(diff instanceof Raw.updates.ChannelDifferenceEmpty)) {
-                    if ('pts' in diff) {
-                      this._localPtsChat.set(
-                        Helpers.getChannelId(_update.message.peerId.channelId),
-                        diff.pts,
-                      );
-                    }
-                    _chats = chats.map((e) => {
-                      const newValue = diff.chats.find((o) => o.id === e.id);
-                      if (!!newValue) {
-                        return newValue;
-                      }
-                      return e;
-                    });
-                    _users = users.map((e) => {
-                      const newValue = diff.users.find((o) => o.id === e.id);
-                      if (!!newValue) {
-                        return newValue;
-                      }
-                      return e;
-                    });
-                  }
-                } catch (error: any) {}
-              }
-            }
-          }
-          parsedUpdate.push(await Update.parse(client, _update, _chats ?? chats, _users ?? users));
+          parsedUpdate.push(await Update.parse(client, _update, chats, users));
         }
       }
     } else if (
@@ -260,38 +195,182 @@ export class MainContext<T> extends Composer<T> {
           qts: -1,
         }),
       );
-      if (
-        difference instanceof Raw.updates.Difference ||
-        difference instanceof Raw.updates.DifferenceSlice
-      ) {
-        const { newMessages, otherUpdates, chats, users } = difference;
-        if (newMessages) {
-          for (const newMessage of newMessages) {
-            parsedUpdate.push(
-              await Update.parse(
-                client,
-                new Raw.UpdateNewMessage({
-                  message: newMessage,
-                  pts: update.pts,
-                  ptsCount: update.ptsCount,
-                }),
-                chats,
-                users,
-              ),
-            );
-          }
-        } else if (otherUpdates) {
-          for (const otherUpdate of otherUpdates) {
-            parsedUpdate.push(await Update.parse(client, otherUpdate, chats, users));
+      parsedUpdate.push(...(await this.processDifference(client, difference)));
+    } else if (update instanceof Raw.UpdateShort) {
+      if (update.update instanceof Raw.UpdateUserStatus) {
+        if ((update.update as Raw.UpdateUserStatus).userId === client._me.id && !client._me.bot) {
+          if (
+            (update.update as Raw.UpdateUserStatus).status instanceof Raw.UserStatusOffline &&
+            client._options.experimental!.alwaysOnline
+          ) {
+            await client._client.invoke(new Raw.account.UpdateStatus({ offline: false }));
           }
         }
       }
-    } else if (update instanceof Raw.UpdateShort) {
       parsedUpdate.push(await Update.parse(client, update.update, [], []));
     }
     parsedUpdate.push(update);
     return parsedUpdate;
   }
+
+  syncChannelUpdate(client) {
+    return async () => {
+      if (client._options!.experimental!.alwaysSync) {
+        for (const [channelId, ptsInfo] of this._localPtsChat) {
+          // if no update more than 30 second, sync it.
+          if (Date.now() - ptsInfo[1] > client._options!.experimental!.syncTimeout) {
+            const parsedUpdate: Array<Update | Raw.TypeUpdates> = [];
+            // loop until final get difference
+            Logger.debug(`Looping GetChannelDifference`);
+            const execGetDiff = async () => {
+              const _localPts = this._localPtsChat.get(channelId);
+              if (_localPts) {
+                try {
+                  const diff = await client.api.invoke(
+                    new Raw.updates.GetChannelDifference({
+                      channel: await client._client.resolvePeer(channelId),
+                      filter: new Raw.ChannelMessagesFilterEmpty(),
+                      pts: _localPts[0],
+                      limit: 100,
+                    }),
+                  );
+                  if (!diff) {
+                    Logger.error(`Failed to getChannelDifference cause: results undefined`);
+                    return;
+                  }
+                  if (diff instanceof Raw.updates.ChannelDifferenceTooLong) {
+                    // handle force sync soon.
+                    // Logger.debug(`Skipped getChannelDifference results due to too long difference`);
+                    //return;
+                    this._localPtsChat.set(channelId, [
+                      ((diff as Raw.updates.ChannelDifferenceTooLong).dialog as Raw.Dialog)
+                        .pts as number,
+                      Date.now(),
+                    ]);
+                  } else {
+                    // @ts-ignore
+                    this._localPtsChat.set(channelId, [diff.pts, Date.now()]);
+                  }
+                  if (diff instanceof Raw.updates.ChannelDifferenceEmpty) {
+                    Logger.debug(`Skipped getChannelDifference results due to empty difference`);
+                  }
+                  parsedUpdate.push(...(await this.processChannelDifference(client, diff)));
+                  if (!diff.final) {
+                    return execGetDiff();
+                  }
+                  Logger.debug(`Escaping loop getChannelDifference`);
+                } catch (error: any) {
+                  Logger.error(`Failed to getChannelDifference cause: error`, error);
+                  return;
+                }
+              } else {
+                Logger.debug(`Escaping loop getChannelDifference due to no localPts`);
+                return;
+              }
+            };
+            await execGetDiff();
+            // send to client
+            for (const _update of parsedUpdate) {
+              try {
+                // @ts-ignore
+                await run<Update>(this.middleware(), _update);
+              } catch (error: any) {
+                // @ts-ignore
+                return this._errorHandler(error, _update);
+              }
+            }
+          }
+        }
+        // schedule sync update every 10s
+        setTimeout(this.syncChannelUpdate(client), client._options!.experimental!.syncEvery);
+      }
+    };
+  }
+
+  async processDifference(
+    client: Snake,
+    difference: Raw.updates.TypeDifference,
+  ): Promise<Array<Update | Raw.TypeUpdates>> {
+    const parsedUpdate: Array<Update | Raw.TypeUpdates> = [];
+    if (
+      difference instanceof Raw.updates.Difference ||
+      difference instanceof Raw.updates.DifferenceSlice
+    ) {
+      const { newMessages, otherUpdates, chats, users } = difference;
+      if (newMessages) {
+        for (const newMessage of newMessages) {
+          parsedUpdate.push(
+            await Update.parse(
+              client,
+              new Raw.UpdateNewMessage({
+                message: newMessage,
+                pts: 0,
+                ptsCount: 0,
+              }),
+              chats,
+              users,
+            ),
+          );
+        }
+      } else if (otherUpdates) {
+        for (const otherUpdate of otherUpdates) {
+          parsedUpdate.push(await Update.parse(client, otherUpdate, chats, users));
+        }
+      }
+    }
+    return parsedUpdate;
+  }
+  async processChannelDifference(
+    client: Snake,
+    difference: Raw.updates.TypeChannelDifference,
+  ): Promise<Array<Update | Raw.TypeUpdates>> {
+    const parsedUpdate: Array<Update | Raw.TypeUpdates> = [];
+    if (difference instanceof Raw.updates.ChannelDifference) {
+      const { newMessages, otherUpdates, chats, users } =
+        difference as Raw.updates.ChannelDifference;
+      if (newMessages) {
+        for (const newMessage of newMessages) {
+          parsedUpdate.push(
+            await Update.parse(
+              client,
+              new Raw.UpdateNewMessage({
+                message: newMessage,
+                pts: 0,
+                ptsCount: 0,
+              }),
+              chats,
+              users,
+            ),
+          );
+        }
+      } else if (otherUpdates) {
+        for (const otherUpdate of otherUpdates) {
+          parsedUpdate.push(await Update.parse(client, otherUpdate, chats, users));
+        }
+      }
+    }
+    if (difference instanceof Raw.updates.ChannelDifferenceTooLong) {
+      const { messages, chats, users } = difference as Raw.updates.ChannelDifferenceTooLong;
+      if (messages) {
+        for (const message of messages) {
+          parsedUpdate.push(
+            await Update.parse(
+              client,
+              new Raw.UpdateNewMessage({
+                message: message,
+                pts: 0,
+                ptsCount: 0,
+              }),
+              chats,
+              users,
+            ),
+          );
+        }
+      }
+    }
+    return parsedUpdate;
+  }
+
   catch(errorHandler: ErrorHandler<T>) {
     if (typeof errorHandler === 'function') {
       this._errorHandler = errorHandler;
