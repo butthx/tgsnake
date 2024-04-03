@@ -69,6 +69,7 @@ export class Snake<T = {}> extends MainContext<T> {
       this._options = Object.assign(
         {
           logLevel: [sysprc.env.LOGLEVEL || 'debug'],
+          experimental: {},
         },
         options,
       );
@@ -91,6 +92,23 @@ export class Snake<T = {}> extends MainContext<T> {
         },
         this._options.login,
       );
+      this._options.experimental = Object.assign(
+        {
+          alwaysOnline: false,
+          onlineOnStart: false,
+          shutdown: true,
+          customPath: {
+            loginDir: cwd(),
+            loginExt: 'session',
+            cacheDir: cwd(),
+            cacheExt: 'cache',
+          },
+          syncEvery: 10000,
+          syncTimeout: 30000,
+          alwaysSync: false,
+        },
+        this._options.experimental,
+      );
       // validate session.
       if (this._options.login.session !== undefined) {
         if (typeof this._options.login.session === 'string') {
@@ -98,7 +116,13 @@ export class Snake<T = {}> extends MainContext<T> {
           if (this._options.login.session === '') {
             if (this._options.login.forceDotSession) {
               if (!options.login.sessionName) {
-                this._options.login.sessionName = generateName(this._options.login.sessionName!);
+                this._options.login.sessionName = generateName(
+                  this._options.login.sessionName!,
+                  this._options.experimental!.customPath!.loginDir!,
+                  this._options.experimental!.customPath!.loginExt!,
+                  this._options.experimental!.customPath!.cacheDir!,
+                  this._options.experimental!.customPath!.cacheExt!,
+                );
                 Logger.info(
                   `Creating \`${this._options.login.sessionName}\` dot session. Change default sessionName to \`${this._options.login.sessionName}\` for login in next time.`,
                 );
@@ -106,7 +130,13 @@ export class Snake<T = {}> extends MainContext<T> {
               if (isBrowser) {
                 this._options.login.session = new BrowserSession(this._options.login.sessionName!);
               } else {
-                this._options.login.session = new SnakeSession(this._options.login.sessionName!);
+                this._options.login.session = new SnakeSession(
+                  this._options.login.sessionName!,
+                  this._options.experimental!.customPath!.loginDir!,
+                  this._options.experimental!.customPath!.loginExt!,
+                  this._options.experimental!.customPath!.cacheDir!,
+                  this._options.experimental!.customPath!.cacheExt!,
+                );
               }
             } else {
               this._options.login.session = new Storages.StringSession(this._options.login.session);
@@ -114,14 +144,26 @@ export class Snake<T = {}> extends MainContext<T> {
           } else {
             const _session = new Storages.StringSession(this._options.login.session);
             if (this._options.login.forceDotSession) {
-              this._options.login.sessionName = generateName(this._options.login.sessionName!);
+              this._options.login.sessionName = generateName(
+                this._options.login.sessionName!,
+                this._options.experimental!.customPath!.loginDir!,
+                this._options.experimental!.customPath!.loginExt!,
+                this._options.experimental!.customPath!.cacheDir!,
+                this._options.experimental!.customPath!.cacheExt!,
+              );
               Logger.info(
                 `Creating \`${this._options.login.sessionName}\` dot session. Change default sessionName to \`${this._options.login.sessionName}\` for login in next time.`,
               );
               if (isBrowser) {
                 this._options.login.session = new BrowserSession(this._options.login.sessionName!);
               } else {
-                this._options.login.session = new SnakeSession(this._options.login.sessionName!);
+                this._options.login.session = new SnakeSession(
+                  this._options.login.sessionName!,
+                  this._options.experimental!.customPath!.loginDir!,
+                  this._options.experimental!.customPath!.loginExt!,
+                  this._options.experimental!.customPath!.cacheDir!,
+                  this._options.experimental!.customPath!.cacheExt!,
+                );
               }
               _session.move(this._options.login.session);
             } else {
@@ -136,6 +178,12 @@ export class Snake<T = {}> extends MainContext<T> {
       }
       // @ts-ignore
       Logger.setLogLevel(this._options.logLevel);
+
+      if (options.experimental) {
+        Logger.warning(
+          'If you use the experimental option, we strongly do not recommend using this function.',
+        );
+      }
     }
     this._cacheMessage = new Map();
     this.api = new Telegram(this);
@@ -181,6 +229,9 @@ export class Snake<T = {}> extends MainContext<T> {
   }
   async run() {
     await this._init();
+    if (this._options.experimental!.shutdown) {
+      shutdown(this);
+    }
     if (this._plugin.getEventHandler('beforeStart').length) {
       Logger.debug(
         `Running ${this._plugin.getEventHandler('beforeStart').length} before start handler plugin.`,
@@ -216,6 +267,9 @@ export class Snake<T = {}> extends MainContext<T> {
       }
     }
     this._client.addHandler((update) => this.handleUpdate(update, this));
+    if (this._options!.experimental!.alwaysSync) {
+      this.syncChannelUpdate(this)();
+    }
     Logger.info('Client is running');
     if (this._me) {
       Logger.log(
@@ -223,6 +277,9 @@ export class Snake<T = {}> extends MainContext<T> {
           this._me.lastName ? `${this._me.firstName} ${this._me.lastName}` : this._me.firstName
         } - ${this._me.id}`,
       );
+      if (this._options.experimental!.onlineOnStart) {
+        await this._client.invoke(new Raw.account.UpdateStatus({ offline: false }));
+      }
     }
     if (this._plugin.getEventHandler('afterStart').length) {
       Logger.debug(
@@ -238,6 +295,15 @@ export class Snake<T = {}> extends MainContext<T> {
     }
     return true;
   }
+
+  restart() {
+    this._client._session.restart();
+    this._cacheMessage = new Map();
+    this._rndMsgId = new Sessions.MsgId();
+    this._commonBox = new Map();
+    this._localPtsChat = new Map();
+  }
+
   get core(): Client {
     return this._client;
   }
