@@ -181,7 +181,55 @@ export class MainContext<T> extends Composer<T> {
         } else if (_update instanceof Raw.UpdatesTooLong) {
           Logger.debug(`Got ${_update.className}`, _update);
         } else {
-          parsedUpdate.push(await Update.parse(client, _update, chats, users));
+          let _chats, _users;
+          if (_update instanceof Raw.UpdateNewChannelMessage) {
+            if (!('message' in _update && _update.message instanceof Raw.MessageEmpty)) {
+              if (_update.message.peerId && 'channelId' in _update.message.peerId) {
+                try {
+                  const diff = await client.api.invoke(
+                    new Raw.updates.GetChannelDifference({
+                      channel: await client._client.resolvePeer(
+                        Helpers.getChannelId(_update.message.peerId.channelId),
+                      ),
+                      filter: new Raw.ChannelMessagesFilter({
+                        ranges: [
+                          new Raw.MessageRange({
+                            minId: _update.message.id,
+                            maxId: _update.message.id,
+                          }),
+                        ],
+                      }),
+                      pts: _update.pts - _update.ptsCount,
+                      limit: _update.pts,
+                    }),
+                  );
+                  if (!(diff instanceof Raw.updates.ChannelDifferenceEmpty)) {
+                    if ('pts' in diff) {
+                      this._localPtsChat.set(
+                        Helpers.getChannelId(_update.message.peerId.channelId),
+                        [diff.pts],
+                      );
+                    }
+                    _chats = chats.map((e) => {
+                      const newValue = diff.chats.find((o) => o.id === e.id);
+                      if (!!newValue) {
+                        return newValue;
+                      }
+                      return e;
+                    });
+                    _users = users.map((e) => {
+                      const newValue = diff.users.find((o) => o.id === e.id);
+                      if (!!newValue) {
+                        return newValue;
+                      }
+                      return e;
+                    });
+                  }
+                } catch (error: any) {}
+              }
+            }
+          }
+          parsedUpdate.push(await Update.parse(client, _update, _chats ?? chats, _users ?? users));
         }
       }
     } else if (
