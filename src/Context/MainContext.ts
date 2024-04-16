@@ -114,7 +114,11 @@ export class MainContext<T> extends Composer<T> {
         if ('pts' in _update) {
           const _channelId = getChannelId(_update);
           if (_channelId !== BigInt(0)) {
-            this._localPtsChat.set(_channelId, [_update.pts as number, Date.now()]);
+            this._localPtsChat.set(_channelId, [
+              _update.pts as number,
+              Date.now(),
+              client._options!.experimental!.syncTimeout ?? 30000,
+            ]);
           } else {
             this._commonBox.set('pts', _update.pts as number);
           }
@@ -152,10 +156,15 @@ export class MainContext<T> extends Composer<T> {
                       ((diff as Raw.updates.ChannelDifferenceTooLong).dialog as Raw.Dialog)
                         .pts as number,
                       Date.now(),
+                      client._options!.experimental!.syncTimeout ?? 30000,
                     ]);
                   } else {
                     // @ts-ignore
-                    this._localPtsChat.set(_channelId, [diff.pts, Date.now()]);
+                    this._localPtsChat.set(_channelId, [
+                      diff.pts,
+                      Date.now(),
+                      client._options!.experimental!.syncTimeout ?? 30000,
+                    ]);
                   }
                   if (diff instanceof Raw.updates.ChannelDifferenceEmpty) {
                     Logger.debug(`Skipped getChannelDifference results due to empty difference`);
@@ -181,9 +190,9 @@ export class MainContext<T> extends Composer<T> {
         } else if (_update instanceof Raw.UpdatesTooLong) {
           Logger.debug(`Got ${_update.className}`, _update);
         } else {
-          let _chats, _users;
-          if (_update instanceof Raw.UpdateNewChannelMessage) {
-            if (!('message' in _update && _update.message instanceof Raw.MessageEmpty)) {
+          // let _chats, _users;
+          /*if (_update instanceof Raw.UpdateNewChannelMessage) {
+            if (!(_update.message instanceof Raw.MessageEmpty) && 'message' in _update) {
               if (_update.message.peerId && 'channelId' in _update.message.peerId) {
                 try {
                   const diff = await client.api.invoke(
@@ -207,7 +216,7 @@ export class MainContext<T> extends Composer<T> {
                     if ('pts' in diff) {
                       this._localPtsChat.set(
                         Helpers.getChannelId(_update.message.peerId.channelId),
-                        [diff.pts],
+                        [diff.pts, Date.now(), client._options!.experimental!.syncTimeout ?? 30000],
                       );
                     }
                     _chats = chats.map((e) => {
@@ -228,8 +237,8 @@ export class MainContext<T> extends Composer<T> {
                 } catch (error: any) {}
               }
             }
-          }
-          parsedUpdate.push(await Update.parse(client, _update, _chats ?? chats, _users ?? users));
+          }*/
+          parsedUpdate.push(await Update.parse(client, _update, chats, users));
         }
       }
     } else if (
@@ -266,7 +275,7 @@ export class MainContext<T> extends Composer<T> {
       if (client._options!.experimental!.alwaysSync) {
         for (const [channelId, ptsInfo] of this._localPtsChat) {
           // if no update more than 30 second, sync it.
-          if (Date.now() - ptsInfo[1] > client._options!.experimental!.syncTimeout) {
+          if (Date.now() - ptsInfo[1] > (ptsInfo[2] ?? 30000)) {
             const parsedUpdate: Array<Update | Raw.TypeUpdates> = [];
             // loop until final get difference
             Logger.debug(`Looping GetChannelDifference`);
@@ -294,10 +303,15 @@ export class MainContext<T> extends Composer<T> {
                       ((diff as Raw.updates.ChannelDifferenceTooLong).dialog as Raw.Dialog)
                         .pts as number,
                       Date.now(),
+                      client._options!.experimental!.syncTimeout ?? diff.timeout ?? 30000,
                     ]);
                   } else {
                     // @ts-ignore
-                    this._localPtsChat.set(channelId, [diff.pts, Date.now()]);
+                    this._localPtsChat.set(channelId, [
+                      diff.pts,
+                      Date.now(),
+                      client._options!.experimental!.syncTimeout ?? diff.timeout ?? 30000,
+                    ]);
                   }
                   if (diff instanceof Raw.updates.ChannelDifferenceEmpty) {
                     Logger.debug(`Skipped getChannelDifference results due to empty difference`);

@@ -104,7 +104,6 @@ export class Snake<T = {}> extends MainContext<T> {
             cacheExt: 'cache',
           },
           syncEvery: 10000,
-          syncTimeout: 30000,
           alwaysSync: false,
         },
         this._options.experimental,
