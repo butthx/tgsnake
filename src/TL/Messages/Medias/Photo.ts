@@ -80,9 +80,30 @@ export class Photo extends TLObject {
               photo.dcId,
             ),
           );
+          collect.push({
+            type: psize.type,
+            w: psize.w,
+            h: psize.h,
+            size: BigInt(psize.size),
+          });
         }
         if (psize instanceof Raw.PhotoSizeProgressive) {
           psize as Raw.PhotoSizeProgressive;
+          thumb.push(
+            PhotoSize.parse(
+              client,
+              new Raw.PhotoSize({
+                type: psize.type,
+                w: psize.w,
+                h: psize.h,
+                size: Math.max(...psize.sizes),
+              }),
+              photo.id,
+              photo.accessHash,
+              photo.fileReference,
+              photo.dcId,
+            ),
+          );
           collect.push({
             type: psize.type,
             w: psize.w,

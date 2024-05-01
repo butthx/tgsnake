@@ -81,12 +81,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.12.3":
-  version: 20.12.3
-  resolution: "@types/node@npm:20.12.3"
+"@types/node@npm:20.12.7":
+  version: 20.12.7
+  resolution: "@types/node@npm:20.12.7"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10/3f3c5c6ba118a18aa997c51cdc3c66259d69021f87475a99ed6c913a6956e22de49748e09843bf6447a7a63ae474e61945a6dbcca93e23b2359fc0b6f9914f7a
+  checksum: 10/b4a28a3b593a9bdca5650880b6a9acef46911d58cf7cfa57268f048e9a7157a7c3196421b96cea576850ddb732e3b54bc982c8eb5e1e5ef0635d4424c2fce801
   languageName: node
   linkType: hard
 
@@ -497,7 +497,7 @@ __metadata:
     "@tgsnake/fileid": "npm:2.1.0"
     "@tgsnake/log": "npm:latest"
     "@tgsnake/parser": "npm:2.0.3"
-    "@types/node": "npm:20.12.3"
+    "@types/node": "npm:20.12.7"
     deno2node: "npm:1.12.0"
     mime-types: "npm:2.1.35"
     prettier: "npm:3.2.5"

@@ -26,12 +26,21 @@ import {
   type sendStickerParams,
   sendAudio,
   type sendAudioParams,
+  download,
+  type DownloadParams,
 } from './Messages/index.ts';
 import { getParticipants, type getParticipantsParams } from './Chats/index.ts';
 
 export class Telegram extends TLObject {
   constructor(client: Snake) {
     super(client);
+  }
+  /**
+   * Downloading document or photo.
+   * @param {DownloadParams} params - Parameters required to download files, such as fileId, chatId, fileSize and so on.
+   */
+  download(params: DownloadParams) {
+    return download(this.client!, params);
   }
   /**
    * Requesting function using raw api.
