@@ -7,7 +7,7 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { Raw, Helpers } from '../../platform.deno.ts';
+import { Raw, Helpers, Buffer } from '../../platform.deno.ts';
 import type { Snake } from '../../Client/index.ts';
 export type TypeReplyMarkup = inlineKeyboard | replyKeyboard | removeKeyboard | forceReplyMarkup;
 /**
