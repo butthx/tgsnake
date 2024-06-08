@@ -107,7 +107,7 @@ export class Update extends TLObject {
     update: Raws.Raw.TypeUpdate,
     chats: Array<Raws.Raw.TypeChat>,
     users: Array<Raws.Raw.TypeUser>,
-  ): Promise<Update> {
+  ): Promise<Update | undefined> {
     Logger.debug(`Parsing update: ${update.className}`);
     if (
       update instanceof Raws.Raw.UpdateNewMessage ||
@@ -234,7 +234,7 @@ export class Update extends TLObject {
         client,
       );
     }
-    return new Update({}, client);
+    return;
   }
   static async updateNewMessage(
     client: Snake,
