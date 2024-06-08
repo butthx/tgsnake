@@ -68,6 +68,7 @@ export class PollOption extends TLObject {
   correct!: boolean;
   voters!: number;
   option!: string;
+  entities!: Array<Entities>;
   constructor(
     {
       text,
@@ -75,12 +76,14 @@ export class PollOption extends TLObject {
       correct,
       voters,
       option,
+      entities,
     }: {
       text: string;
       chosen: boolean;
       correct: boolean;
       voters: number;
       option: string;
+      entities: Array<Entities>;
     },
     client: Snake,
   ) {
@@ -89,6 +92,7 @@ export class PollOption extends TLObject {
     this.chosen = chosen;
     this.voters = voters;
     this.option = option;
+    this.entities = entities;
   }
 }
 // https://core.telegram.org/bots/api#poll
@@ -99,6 +103,7 @@ export class Poll extends TLObject {
   multipleChoice!: boolean;
   quiz!: boolean;
   question!: string;
+  questionEntities?: Array<Entities>;
   options!: Array<PollOption | undefined>;
   min!: boolean;
   totalVoters!: number;
@@ -115,6 +120,7 @@ export class Poll extends TLObject {
       multipleChoice,
       quiz,
       question,
+      questionEntities,
       options,
       closePeriod,
       closeDate,
@@ -130,6 +136,7 @@ export class Poll extends TLObject {
       multipleChoice: boolean;
       quiz: boolean;
       question: string;
+      questionEntities: Array<Entities>;
       options: Array<PollOption | undefined>;
       min: boolean;
       totalVoters: number;
@@ -148,6 +155,7 @@ export class Poll extends TLObject {
     this.multipleChoice = multipleChoice;
     this.quiz = quiz;
     this.question = question;
+    this.questionEntities = questionEntities;
     this.options = options;
     this.closePeriod = closePeriod;
     this.closeDate = closeDate;
@@ -166,18 +174,20 @@ export class Poll extends TLObject {
           publicVoters: poll.poll.publicVoters ?? false,
           multipleChoice: poll.poll.multipleChoice ?? false,
           quiz: poll.poll.quiz ?? false,
-          question: poll.poll.question,
+          question: poll.poll.question.text,
+          questionEntities: Parser.fromRaw(poll.poll.question.entities ?? []),
           options: poll.poll.answers.map((element, index) => {
             if (poll.results?.results) {
               const results = poll.results.results[index];
               if (element && results) {
                 return new PollOption(
                   {
-                    text: element.text,
+                    text: element.text.text,
                     chosen: results.chosen ?? false,
                     correct: results.correct ?? false,
                     voters: results.voters ?? 0,
                     option: element.option.toString('utf8'),
+                    entities: Parser.fromRaw(element.text.entities ?? []),
                   },
                   client,
                 );
