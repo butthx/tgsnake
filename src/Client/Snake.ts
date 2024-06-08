@@ -29,6 +29,7 @@ import * as Version from '../Version.deno.ts';
 import { Logger, MainContext } from '../Context/index.ts';
 import { Telegram } from '../Methods/Telegram.ts';
 import type { Message } from '../TL/Messages/Message.ts';
+import type { ConversationManager } from '../Conversation/manager.ts';
 
 export class Snake<T = {}> extends MainContext<T> {
   _options!: Options;
@@ -92,21 +93,26 @@ export class Snake<T = {}> extends MainContext<T> {
         },
         this._options.login,
       );
+
       this._options.experimental = Object.assign(
         {
           alwaysOnline: false,
           onlineOnStart: false,
           shutdown: true,
-          customPath: {
-            loginDir: cwd(),
-            loginExt: 'session',
-            cacheDir: cwd(),
-            cacheExt: 'cache',
-          },
           syncEvery: 10000,
           alwaysSync: false,
+          customPath: {},
         },
         this._options.experimental,
+      );
+      this._options.experimental.customPath = Object.assign(
+        {
+          loginDir: cwd(),
+          loginExt: 'session',
+          cacheDir: cwd(),
+          cacheExt: 'cache',
+        },
+        this._options.experimental.customPath,
       );
       // validate session.
       if (this._options.login.session !== undefined) {
@@ -305,6 +311,9 @@ export class Snake<T = {}> extends MainContext<T> {
 
   get core(): Client {
     return this._client;
+  }
+  get conversation(): ConversationManager<T> {
+    return this._conversation;
   }
 }
 /**

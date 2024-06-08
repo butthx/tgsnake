@@ -32,15 +32,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tgsnake/core@npm:1.10.10":
-  version: 1.10.10
-  resolution: "@tgsnake/core@npm:1.10.10"
+"@tgsnake/core@npm:1.13.4":
+  version: 1.13.4
+  resolution: "@tgsnake/core@npm:1.13.4"
   dependencies:
     "@tgsnake/log": "npm:latest"
     async-mutex: "npm:0.5.0"
     big-integer: "npm:1.6.52"
-    socks: "npm:2.8.1"
-  checksum: 10/bce97590fd070b454d9d3fea67ea4d8d7d76296c3a5f52de0394e228fbc2313e24a1ee650d8bc12858169776915552d6d59ea8f4f25491fb1a0f23c5163a48fb
+    socks: "npm:2.8.3"
+  checksum: 10/a345c0c99f5a62c5b7fdc72a19b6df620721147adcc282f6b3f91288bf99091ac167e638a156e8bef3a766c3ffad48608e2b832b7de3f5f8dadfb91d60cf01f4
   languageName: node
   linkType: hard
 
@@ -52,20 +52,20 @@ __metadata:
   linkType: hard
 
 "@tgsnake/log@npm:latest":
-  version: 1.6.2
-  resolution: "@tgsnake/log@npm:1.6.2"
+  version: 1.6.4
+  resolution: "@tgsnake/log@npm:1.6.4"
   dependencies:
     chalk: "npm:4.1.2"
-  checksum: 10/505e0b46cd2f1c810863a2a5e579105407d083a964635616775cae072ea13ede187609f412542767e1ba9a667852ac415cfb913179a7a6a12e4bd8f1d866d95e
+  checksum: 10/82b7f8a9ef1d4b34453dbf013e6bfd4ccb041f487fcdabafc2c922df966e8ec7d2dacc4c59acf84e22132df852915cc406cf530e5d7669b9253a788ff33f9d3e
   languageName: node
   linkType: hard
 
-"@tgsnake/parser@npm:2.0.3":
-  version: 2.0.3
-  resolution: "@tgsnake/parser@npm:2.0.3"
+"@tgsnake/parser@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@tgsnake/parser@npm:2.1.0"
   dependencies:
-    htmlparser2: "npm:^9.0.0"
-  checksum: 10/d17a6ba7af66b8dfc94ac726f10622212643b0fa0000ca35d7fa5d968b4ab3a61383f4a0a1ae323af27e62753c3daa2cf5824697d883b6f18f64402317c52be8
+    htmlparser2: "npm:^9.1.0"
+  checksum: 10/d7b8837a5abcca35f8e79267e721ff16b798f6aa9a7bb79dc7a97b529e909b8b2e40c45332ed63ce02d0678e43535161609e3a761a4612820641542914514bd3
   languageName: node
   linkType: hard
 
@@ -81,12 +81,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.12.7":
-  version: 20.12.7
-  resolution: "@types/node@npm:20.12.7"
+"@types/node@npm:20.14.2":
+  version: 20.14.2
+  resolution: "@types/node@npm:20.14.2"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10/b4a28a3b593a9bdca5650880b6a9acef46911d58cf7cfa57268f048e9a7157a7c3196421b96cea576850ddb732e3b54bc982c8eb5e1e5ef0635d4424c2fce801
+  checksum: 10/c38e47b190fa0a8bdfde24b036dddcf9401551f2fb170a90ff33625c7d6f218907e81c74e0fa6e394804a32623c24c60c50e249badc951007830f0d02c48ee0f
   languageName: node
   linkType: hard
 
@@ -283,15 +283,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"htmlparser2@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "htmlparser2@npm:9.0.0"
+"htmlparser2@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "htmlparser2@npm:9.1.0"
   dependencies:
     domelementtype: "npm:^2.3.0"
     domhandler: "npm:^5.0.3"
     domutils: "npm:^3.1.0"
     entities: "npm:^4.5.0"
-  checksum: 10/6b0132fee4da2f6565dfb9166917992bf67bd7827a00a4baa35e2eea8db488b3a1dfea2a597cf3a743521d5276ecd39fb297ce0e8698af6d14c8f02a5fe08e90
+  checksum: 10/6352fa2a5495781fa9a02c9049908334cd068ff36d753870d30cd13b841e99c19646717567a2f9e9c44075bbe43d364e102f9d013a731ce962226d63746b794f
   languageName: node
   linkType: hard
 
@@ -407,12 +407,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:3.2.5":
-  version: 3.2.5
-  resolution: "prettier@npm:3.2.5"
+"prettier@npm:3.3.1":
+  version: 3.3.1
+  resolution: "prettier@npm:3.3.1"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10/d509f9da0b70e8cacc561a1911c0d99ec75117faed27b95cc8534cb2349667dee6351b0ca83fa9d5703f14127faa52b798de40f5705f02d843da133fc3aa416a
+  checksum: 10/31ca48d07a163fe6bff5483feb9bdf3bd7e4305e8d976373375cddc2949180a007be3ef08c36f4d7b31e449acef1ebbf46d3b94dc32f5a276837bf48c393be69
   languageName: node
   linkType: hard
 
@@ -463,13 +463,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socks@npm:2.8.1":
-  version: 2.8.1
-  resolution: "socks@npm:2.8.1"
+"socks@npm:2.8.3":
+  version: 2.8.3
+  resolution: "socks@npm:2.8.3"
   dependencies:
     ip-address: "npm:^9.0.5"
     smart-buffer: "npm:^4.2.0"
-  checksum: 10/a3cc38e0716ab53a2db3fa00c703ca682ad54dbbc9ed4c7461624a999be6fa7cdc79fc904c411618e698d5eff55a55aa6d9329169a7db11636d0200814a2b5aa
+  checksum: 10/ffcb622c22481dfcd7589aae71fbfd71ca34334064d181df64bf8b7feaeee19706aba4cffd1de35cc7bbaeeaa0af96be2d7f40fcbc7bc0ab69533a7ae9ffc4fb
   languageName: node
   linkType: hard
 
@@ -493,14 +493,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tgsnake@workspace:."
   dependencies:
-    "@tgsnake/core": "npm:1.10.10"
+    "@tgsnake/core": "npm:1.13.4"
     "@tgsnake/fileid": "npm:2.1.0"
     "@tgsnake/log": "npm:latest"
-    "@tgsnake/parser": "npm:2.0.3"
-    "@types/node": "npm:20.12.7"
+    "@tgsnake/parser": "npm:2.1.0"
+    "@types/node": "npm:20.14.2"
     deno2node: "npm:1.12.0"
     mime-types: "npm:2.1.35"
-    prettier: "npm:3.2.5"
+    prettier: "npm:3.3.1"
     prompts: "npm:2.4.2"
   languageName: unknown
   linkType: soft

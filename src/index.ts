@@ -15,6 +15,7 @@ export { Telegram } from './Methods/Telegram.ts';
 export { type Options, type LoginWithSession } from './Client/Options.ts';
 export * as Clients from './Client/index.ts';
 export * as Contexts from './Context/index.ts';
+export * as Conversations from './Conversation/index.ts';
 export * as TLs from './TL/index.ts';
 export * as Methods from './Methods/index.ts';
 export * as Utilities from './Utilities.ts';

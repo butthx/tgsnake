@@ -122,3 +122,5 @@ tgsnake.config.js
 # test folder 
 /tes
 /test
+# login folder
+.login/

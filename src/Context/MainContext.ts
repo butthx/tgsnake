@@ -14,6 +14,7 @@ import { Logger } from './Logger.ts';
 import { Update } from '../TL/Updates/Update.ts';
 import { getChannelId } from '../Utilities.ts';
 import { TgsnakeApi } from '../Plugins/index.ts';
+import { ConversationManager } from '../Conversation/manager.ts';
 import type { Snake } from '../Client/Snake.ts';
 
 type TypeChat = Raw.Chat | Raw.Channel;
@@ -28,8 +29,10 @@ export class MainContext<T> extends Composer<T> {
   protected _plugin: TgsnakeApi = new TgsnakeApi();
   protected _localPtsChat: Map<bigint, Array<number>> = new Map<bigint, Array<number>>();
   protected _commonBox: Map<string, number> = new Map<string, number>();
+  protected _conversation: ConversationManager<T> = new ConversationManager<T>();
   constructor() {
     super();
+    this.use(this._conversation);
   }
   async handleUpdate(update: Raw.TypeUpdates, client: Snake) {
     if (!update) return false;
@@ -190,55 +193,8 @@ export class MainContext<T> extends Composer<T> {
         } else if (_update instanceof Raw.UpdatesTooLong) {
           Logger.debug(`Got ${_update.className}`, _update);
         } else {
-          // let _chats, _users;
-          /*if (_update instanceof Raw.UpdateNewChannelMessage) {
-            if (!(_update.message instanceof Raw.MessageEmpty) && 'message' in _update) {
-              if (_update.message.peerId && 'channelId' in _update.message.peerId) {
-                try {
-                  const diff = await client.api.invoke(
-                    new Raw.updates.GetChannelDifference({
-                      channel: await client._client.resolvePeer(
-                        Helpers.getChannelId(_update.message.peerId.channelId),
-                      ),
-                      filter: new Raw.ChannelMessagesFilter({
-                        ranges: [
-                          new Raw.MessageRange({
-                            minId: _update.message.id,
-                            maxId: _update.message.id,
-                          }),
-                        ],
-                      }),
-                      pts: _update.pts - _update.ptsCount,
-                      limit: _update.pts,
-                    }),
-                  );
-                  if (!(diff instanceof Raw.updates.ChannelDifferenceEmpty)) {
-                    if ('pts' in diff) {
-                      this._localPtsChat.set(
-                        Helpers.getChannelId(_update.message.peerId.channelId),
-                        [diff.pts, Date.now(), client._options!.experimental!.syncTimeout ?? 30000],
-                      );
-                    }
-                    _chats = chats.map((e) => {
-                      const newValue = diff.chats.find((o) => o.id === e.id);
-                      if (!!newValue) {
-                        return newValue;
-                      }
-                      return e;
-                    });
-                    _users = users.map((e) => {
-                      const newValue = diff.users.find((o) => o.id === e.id);
-                      if (!!newValue) {
-                        return newValue;
-                      }
-                      return e;
-                    });
-                  }
-                } catch (error: any) {}
-              }
-            }
-          }*/
-          parsedUpdate.push(await Update.parse(client, _update, chats, users));
+          let _up = await Update.parse(client, _update, chats, users);
+          if (_up) parsedUpdate.push(_up);
         }
       }
     } else if (
@@ -264,7 +220,8 @@ export class MainContext<T> extends Composer<T> {
           }
         }
       }
-      parsedUpdate.push(await Update.parse(client, update.update, [], []));
+      let _up = await Update.parse(client, update.update, [], []);
+      if (_up) parsedUpdate.push(_up);
     }
     parsedUpdate.push(update);
     return parsedUpdate;
@@ -361,22 +318,22 @@ export class MainContext<T> extends Composer<T> {
       const { newMessages, otherUpdates, chats, users } = difference;
       if (newMessages) {
         for (const newMessage of newMessages) {
-          parsedUpdate.push(
-            await Update.parse(
-              client,
-              new Raw.UpdateNewMessage({
-                message: newMessage,
-                pts: 0,
-                ptsCount: 0,
-              }),
-              chats,
-              users,
-            ),
+          let _up = await Update.parse(
+            client,
+            new Raw.UpdateNewMessage({
+              message: newMessage,
+              pts: 0,
+              ptsCount: 0,
+            }),
+            chats,
+            users,
           );
+          if (_up) parsedUpdate.push(_up);
         }
       } else if (otherUpdates) {
         for (const otherUpdate of otherUpdates) {
-          parsedUpdate.push(await Update.parse(client, otherUpdate, chats, users));
+          let _up = await Update.parse(client, otherUpdate, chats, users);
+          if (_up) parsedUpdate.push(_up);
         }
       }
     }
@@ -392,22 +349,22 @@ export class MainContext<T> extends Composer<T> {
         difference as Raw.updates.ChannelDifference;
       if (newMessages) {
         for (const newMessage of newMessages) {
-          parsedUpdate.push(
-            await Update.parse(
-              client,
-              new Raw.UpdateNewMessage({
-                message: newMessage,
-                pts: 0,
-                ptsCount: 0,
-              }),
-              chats,
-              users,
-            ),
+          let _up = await Update.parse(
+            client,
+            new Raw.UpdateNewMessage({
+              message: newMessage,
+              pts: 0,
+              ptsCount: 0,
+            }),
+            chats,
+            users,
           );
+          if (_up) parsedUpdate.push(_up);
         }
       } else if (otherUpdates) {
         for (const otherUpdate of otherUpdates) {
-          parsedUpdate.push(await Update.parse(client, otherUpdate, chats, users));
+          let _up = await Update.parse(client, otherUpdate, chats, users);
+          if (_up) parsedUpdate.push(_up);
         }
       }
     }
@@ -415,18 +372,17 @@ export class MainContext<T> extends Composer<T> {
       const { messages, chats, users } = difference as Raw.updates.ChannelDifferenceTooLong;
       if (messages) {
         for (const message of messages) {
-          parsedUpdate.push(
-            await Update.parse(
-              client,
-              new Raw.UpdateNewMessage({
-                message: message,
-                pts: 0,
-                ptsCount: 0,
-              }),
-              chats,
-              users,
-            ),
+          let _up = await Update.parse(
+            client,
+            new Raw.UpdateNewMessage({
+              message: message,
+              pts: 0,
+              ptsCount: 0,
+            }),
+            chats,
+            users,
           );
+          if (_up) parsedUpdate.push(_up);
         }
       }
     }

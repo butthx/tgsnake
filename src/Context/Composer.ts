@@ -28,7 +28,7 @@ export type Combine<T, U> = T & Partial<U>;
 function flatten<C>(mw: Middleware<C>): MiddlewareFn<C> {
   return typeof mw === 'function' ? mw : (ctx: C, next: NextFn) => mw.middleware()(ctx, next);
 }
-function concat<C>(first: MiddlewareFn<C>, andThen: MiddlewareFn<C>) {
+export function concat<C>(first: MiddlewareFn<C>, andThen: MiddlewareFn<C>) {
   return async (ctx: C, next: NextFn) => {
     let nextCalled = false;
     await first(ctx, async () => {
@@ -38,18 +38,18 @@ function concat<C>(first: MiddlewareFn<C>, andThen: MiddlewareFn<C>) {
     });
   };
 }
-function pass<C>(_ctx: C, next: NextFn) {
+export function pass<C>(_ctx: C, next: NextFn) {
   return next();
 }
-const leaf = () => Promise.resolve();
-function triggerFn(
+export const leaf = () => Promise.resolve();
+export function triggerFn(
   trigger: MaybeArray<string | RegExp>,
 ): Array<(content: string) => RegExpExecArray | string | null> {
   return toArray<string | RegExp>(trigger).map((t) =>
     typeof t === 'string' ? (txt) => (txt === t ? t : null) : (txt) => (t as RegExp).exec(txt),
   );
 }
-function match<C>(
+export function match<C>(
   content: string,
   triggers: Array<(content: string) => RegExpExecArray | string | null>,
 ) {
@@ -62,7 +62,7 @@ function match<C>(
   }
   return Boolean(match.length);
 }
-function toArray<T>(e: MaybeArray<T>): Array<T> {
+export function toArray<T>(e: MaybeArray<T>): Array<T> {
   return Array.isArray(e) ? e : [e];
 }
 export async function run<C>(middleware: MiddlewareFn<C>, ctx: C) {
