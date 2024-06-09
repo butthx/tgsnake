@@ -10,7 +10,6 @@
 import { TLObject } from '../TL.ts';
 import {
   Raw,
-  Helpers,
   Parser,
   Cryptos,
   Buffer,
@@ -939,8 +938,8 @@ export class Message extends TLObject {
     text,
     filter,
     callbackData,
-    sharePhone,
-    shareGeo,
+    //    sharePhone,
+    //    shareGeo,
     password,
   }: ClickButtonFn) {
     Logger.debug('message.click called');
@@ -1002,7 +1001,7 @@ export class Message extends TLObject {
       if (!isTrue) return;
     }
     if (callbackData) {
-      let isTrue = await _filter(async (btn, row, col) => {
+      let isTrue = await _filter(async (btn, _row, _col) => {
         let _cb = typeof btn !== 'string' && 'callbackData' in btn ? btn.callbackData : '';
         return callbackData === _cb;
       });

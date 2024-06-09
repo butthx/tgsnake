@@ -11,7 +11,6 @@ import {
   Raw,
   Client,
   Storages,
-  Clients,
   Sessions,
   TypeLogLevel,
   path,
@@ -23,7 +22,7 @@ import {
 import fs from 'node:fs';
 import { SnakeSession, generateName } from './SnakeSession.ts';
 import { BrowserSession } from './BrowserSession.ts';
-import { Options, LoginWithSession } from './Options.ts';
+import { Options } from './Options.ts';
 import { LoginWithCLI } from './Login/Cli.ts';
 import * as Version from '../Version.deno.ts';
 import { Logger, MainContext } from '../Context/index.ts';

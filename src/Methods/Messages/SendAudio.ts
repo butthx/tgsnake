@@ -11,7 +11,6 @@ import { sendMedia } from './SendMedia.ts';
 import {
   FileId,
   FileType,
-  DOCUMENT_TYPES,
   Raw,
   type Readable,
   type Files,
@@ -169,6 +168,7 @@ export async function sendAudio(
   return sendMedia(client, chatId, savedFile, {
     disableNotification,
     replyToMessageId,
+    replyToStoryId,
     messageThreadId,
     scheduleDate,
     sendAsChannel,

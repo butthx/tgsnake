@@ -10,7 +10,6 @@
 import { sendMedia, type sendMediaParams } from './SendMedia.ts';
 import {
   FileId,
-  FileType,
   DOCUMENT_TYPES,
   Raw,
   type Readable,

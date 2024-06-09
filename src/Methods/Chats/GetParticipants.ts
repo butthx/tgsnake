@@ -7,10 +7,8 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { Raw, Helpers } from '../../platform.deno.ts';
-import { User } from '../../TL/Advanced/index.ts';
+import { Raw } from '../../platform.deno.ts';
 import type { Snake } from '../../Client/index.ts';
-import type { Message } from '../../TL/Messages/Message.ts';
 
 export interface getParticipantsParams {
   offset?: number;

@@ -8,7 +8,6 @@
  * it under the terms of the MIT License as published.
  */
 import { Clients, Storages, TypeLogLevel } from '../platform.deno.ts';
-import type { Snake } from './Snake.ts';
 import type { PluginApiFn, PluginApiObj } from '../Plugins/index.ts';
 export interface Options {
   /**

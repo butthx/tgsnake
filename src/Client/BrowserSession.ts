@@ -130,7 +130,7 @@ export class BrowserSession extends Storages.BaseSession {
   private async _makeCache(): Promise<Buffer> {
     let count = 0;
     let bytes = new Raws.BytesIO();
-    for (let [key, value] of this._peers) {
+    for (let [, value] of this._peers) {
       count += 1;
       let content = await buildBytesFromPeer(value);
       bytes.write(Buffer.concat([Raws.Primitive.Int.write(content.length), content]));
@@ -152,7 +152,7 @@ export class BrowserSession extends Storages.BaseSession {
   private async _makeE2E(): Promise<Buffer> {
     let count = 0;
     let bytes = new Raws.BytesIO();
-    for (let [key, value] of this._secretChats) {
+    for (let [, value] of this._secretChats) {
       count += 1;
       let content = await buildBytesFromSecretChat(value);
       bytes.write(Buffer.concat([Raws.Primitive.Int.write(content.length), content]));

@@ -7,7 +7,7 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { Raw, Helpers, Parser, type Entities } from '../../../platform.deno.ts';
+import { Raw, Parser, type Entities } from '../../../platform.deno.ts';
 import { TLObject } from '../../TL.ts';
 import { Chat, User } from '../../Advanced/index.ts';
 import { getId } from '../../../Utilities.ts';
@@ -90,6 +90,7 @@ export class PollOption extends TLObject {
     super(client);
     this.text = text;
     this.chosen = chosen;
+    this.correct = correct;
     this.voters = voters;
     this.option = option;
     this.entities = entities;

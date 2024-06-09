@@ -10,7 +10,6 @@
 import { Conversation } from './conversation.ts';
 import type { Raw } from '../platform.deno.ts';
 import type { Combine, NextFn } from '../Context/Composer.ts';
-import type { FilterContext } from '../Context/Filters.ts';
 import { type TypeUpdate, type ContextUpdate, Update } from '../TL/Updates/index.ts';
 /**
  * Conversation Manager.

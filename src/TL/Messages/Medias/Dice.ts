@@ -8,7 +8,7 @@
  * it under the terms of the MIT License as published.
  */
 import { TLObject } from '../../TL.ts';
-import { Raw, Helpers } from '../../../platform.deno.ts';
+import { Raw } from '../../../platform.deno.ts';
 import type { Snake } from '../../../Client/index.ts';
 
 // https://core.telegram.org/bots/api#dice

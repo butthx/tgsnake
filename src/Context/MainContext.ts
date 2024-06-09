@@ -8,8 +8,8 @@
  * it under the terms of the MIT License as published.
  */
 
-import { Raw, Raws, Helpers } from '../platform.deno.ts';
-import { Composer, run, ErrorHandler, Combine } from './Composer.ts';
+import { Raw } from '../platform.deno.ts';
+import { Composer, run, ErrorHandler } from './Composer.ts';
 import { Logger } from './Logger.ts';
 import { Update } from '../TL/Updates/Update.ts';
 import { getChannelId } from '../Utilities.ts';
@@ -17,8 +17,6 @@ import { TgsnakeApi } from '../Plugins/index.ts';
 import { ConversationManager } from '../Conversation/manager.ts';
 import type { Snake } from '../Client/Snake.ts';
 
-type TypeChat = Raw.Chat | Raw.Channel;
-type TypeUser = Raw.User;
 export class MainContext<T> extends Composer<T> {
   /** @hidden */
   protected _errorHandler: ErrorHandler<T> = (error, update) => {

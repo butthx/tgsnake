@@ -7,7 +7,7 @@
  * tgsnake is a free software : you can redistribute it and/or modify
  * it under the terms of the MIT License as published.
  */
-import { Raw, Helpers, Buffer } from '../../platform.deno.ts';
+import { Raw, Buffer } from '../../platform.deno.ts';
 import type { Snake } from '../../Client/index.ts';
 export type TypeReplyMarkup = inlineKeyboard | replyKeyboard | removeKeyboard | forceReplyMarkup;
 /**
@@ -399,6 +399,7 @@ export async function convertReplyMarkup(
       removeKeyboard: true,
       selective: replyMarkup.selective || undefined,
     };
+    return markup;
   }
   // KeyboardButton
   if (replyMarkup instanceof Raw.ReplyKeyboardMarkup) {

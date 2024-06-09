@@ -11,7 +11,7 @@ import { TLObject } from '../TL.ts';
 import { Raw } from '../../platform.deno.ts';
 import { Message } from '../Messages/Message.ts';
 import { User } from '../Advanced/User.ts';
-import { getId, getPeerId, createInlineMsgId } from '../../Utilities.ts';
+import { getPeerId, createInlineMsgId } from '../../Utilities.ts';
 import type { Snake } from '../../Client/index.ts';
 
 export class CallbackQuery extends TLObject {
@@ -70,7 +70,7 @@ export class CallbackQuery extends TLObject {
   static async parseBot(
     client: Snake,
     update: Raw.UpdateBotCallbackQuery,
-    chats: Array<Raw.TypeChat>,
+    _: Array<Raw.TypeChat>,
     users: Array<Raw.TypeUser>,
   ) {
     const chatId = getPeerId(update.peer);
@@ -109,7 +109,7 @@ export class CallbackQuery extends TLObject {
   static async parseInline(
     client: Snake,
     update: Raw.UpdateInlineBotCallbackQuery,
-    chats: Array<Raw.TypeChat>,
+    _: Array<Raw.TypeChat>,
     users: Array<Raw.TypeUser>,
   ) {
     return new CallbackQuery(

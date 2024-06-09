@@ -20,7 +20,7 @@ export class Conversation<T> {
     Combine<Combine<Combine<TypeUpdate, ContextUpdate>, Raw.TypeUpdates>, T>
   >;
   constructor() {
-    this.handler = (ctx, next) => next();
+    this.handler = (_, next) => next();
   }
   middleware(
     context: Combine<Combine<Combine<TypeUpdate, ContextUpdate>, Raw.TypeUpdates>, T>,
@@ -32,7 +32,10 @@ export class Conversation<T> {
     key: K,
     filter: ConversationWaitFilterFn<Combine<Combine<FilterContext[K], ContextUpdate>, T>> = (
       context: Combine<Combine<FilterContext[K], ContextUpdate>, T>,
-    ) => true,
+    ) => {
+      context; // for ignore 'context' is declared but its value is never read.
+      return true;
+    },
   ) {
     const job = new ConversationJob<Combine<Combine<FilterContext[K], ContextUpdate>, T>>();
     const middleware: MiddlewareFn<
@@ -51,7 +54,7 @@ export class Conversation<T> {
     return job.promise;
   }
   end() {
-    this.handler = (ctx, next) => next();
+    this.handler = (_, next) => next();
   }
 }
 

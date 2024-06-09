@@ -49,7 +49,7 @@ export function triggerFn(
     typeof t === 'string' ? (txt) => (txt === t ? t : null) : (txt) => (t as RegExp).exec(txt),
   );
 }
-export function match<C>(
+export function match(
   content: string,
   triggers: Array<(content: string) => RegExpExecArray | string | null>,
 ) {

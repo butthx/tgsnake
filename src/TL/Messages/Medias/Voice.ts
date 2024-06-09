@@ -8,14 +8,7 @@
  * it under the terms of the MIT License as published.
  */
 import { TLObject } from '../../TL.ts';
-import {
-  Raw,
-  Helpers,
-  FileId,
-  FileType,
-  ThumbnailSource,
-  FileTypeUniqueId,
-} from '../../../platform.deno.ts';
+import { Raw, FileId, FileType, FileTypeUniqueId } from '../../../platform.deno.ts';
 import type { Snake } from '../../../Client/index.ts';
 import { PhotoSize } from './PhotoSize.ts';
 
