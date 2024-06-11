@@ -19,7 +19,7 @@ export {
   Files,
   Cryptos,
   Errors,
-} from 'https://deno.land/x/tgsnake_core@1.13.4/src/index.ts';
+} from 'https://deno.land/x/tgsnake_core@1.13.5/src/index.ts';
 export {
   Writer,
   base64_url_encode,

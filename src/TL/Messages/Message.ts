@@ -703,7 +703,7 @@ export class Message extends TLObject {
             parsedMessage.replyToTopMessageId = (
               message.replyTo as Raw.MessageReplyHeader
             )?.replyToTopId;
-            if (replies) {
+            if (replies > 0) {
               let cchat = client._cacheMessage.get(parsedMessage.chat?.id!);
               if (cchat) {
                 let cmsg = cchat.get(parsedMessage?.replyToMessageId!);
@@ -720,6 +720,16 @@ export class Message extends TLObject {
                     parsedMessage.replyToMessage = fmsg[0];
                   } catch (error) {}
                 }
+              } else {
+                try {
+                  let fmsg = await client.api.getMessages(
+                    parsedMessage.chat?.id!,
+                    [],
+                    [message.id],
+                    replies - 1,
+                  );
+                  parsedMessage.replyToMessage = fmsg[0];
+                } catch (error) {}
               }
             }
           }
