@@ -28,6 +28,7 @@ import {
   type sendAudioParams,
   download,
   type DownloadParams,
+  deleteMessages,
 } from './Messages/index.ts';
 import { getParticipants, type getParticipantsParams } from './Chats/index.ts';
 
@@ -41,6 +42,26 @@ export class Telegram extends TLObject {
    */
   download(params: DownloadParams) {
     return download(this.client!, params);
+  }
+  /**
+   * Delete single message.
+   * This function allow you to delete one message.
+   * @param {string | bigint} chatId - Chat.
+   * @param {number} message - Message id to be deleted.
+   * @return {true}
+   */
+  deleteMessage(chatId: string | bigint, message: number) {
+    return deleteMessages(this.client!, chatId, [message]);
+  }
+  /**
+   * Delete multiple messages.
+   * This function allow you to delete messages more than one.
+   * @param {string | bigint} chatId - Chat.
+   * @param {Array} messages - Message id to be deleted.
+   * @return {true}
+   */
+  deleteMessages(chatId: string | bigint, messages: Array<number>) {
+    return deleteMessages(this.client!, chatId, messages);
   }
   /**
    * Requesting function using raw api.

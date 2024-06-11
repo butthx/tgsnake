@@ -18,3 +18,4 @@ export { sendAnimation, type sendAnimationParams } from './SendAnimation.ts';
 export { sendSticker, type sendStickerParams } from './SendSticker.ts';
 export { sendAudio, type sendAudioParams } from './SendAudio.ts';
 export { download, type DownloadParams } from './Download.ts';
+export { deleteMessages } from './DeleteMessage.ts';
