@@ -32,15 +32,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tgsnake/core@npm:1.13.4":
-  version: 1.13.4
-  resolution: "@tgsnake/core@npm:1.13.4"
+"@tgsnake/core@npm:1.13.5":
+  version: 1.13.5
+  resolution: "@tgsnake/core@npm:1.13.5"
   dependencies:
     "@tgsnake/log": "npm:latest"
     async-mutex: "npm:0.5.0"
     big-integer: "npm:1.6.52"
     socks: "npm:2.8.3"
-  checksum: 10/a345c0c99f5a62c5b7fdc72a19b6df620721147adcc282f6b3f91288bf99091ac167e638a156e8bef3a766c3ffad48608e2b832b7de3f5f8dadfb91d60cf01f4
+  checksum: 10/1fd4d17cef4377d66763ec6ed7ab02e7c3f187fb9be52c99469bc46414e1c568c8d39ded5943f51d5cc8be668f1f523559f704013b6902eb4f64d247d32b3f57
   languageName: node
   linkType: hard
 
@@ -493,7 +493,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tgsnake@workspace:."
   dependencies:
-    "@tgsnake/core": "npm:1.13.4"
+    "@tgsnake/core": "npm:1.13.5"
     "@tgsnake/fileid": "npm:2.1.0"
     "@tgsnake/log": "npm:latest"
     "@tgsnake/parser": "npm:2.1.0"

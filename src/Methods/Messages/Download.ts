@@ -13,7 +13,6 @@ import type { Snake } from '../../Client/index.ts';
 
 export interface DownloadParams {
   fileId: string;
-  chatId: bigint | string;
   fileSize: bigint;
   limit?: number;
   offset?: bigint;
@@ -21,11 +20,11 @@ export interface DownloadParams {
 }
 export async function download(
   client: Snake,
-  { fileId, chatId, limit, offset, thumbSize }: DownloadParams,
+  { fileId, limit, offset, thumbSize }: DownloadParams,
 ): Promise<Files.File> {
   const media = FileId.decodeFileId(fileId);
   if (DOCUMENT_TYPES.includes(media.fileType)) {
-    return client.core.downloadStream(await client.core.resolvePeer(chatId), {
+    return client.core.downloadStream({
       file: new Raw.InputDocumentFileLocation({
         id: media.id,
         accessHash: media.accessHash,
@@ -37,7 +36,7 @@ export async function download(
       offset,
     });
   }
-  return client.core.downloadStream(await client.core.resolvePeer(chatId), {
+  return client.core.downloadStream({
     file: new Raw.InputPhotoFileLocation({
       id: media.id,
       accessHash: media.accessHash,
