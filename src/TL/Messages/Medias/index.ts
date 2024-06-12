@@ -23,3 +23,4 @@ export { Video } from './Video.ts';
 export { VideoNote } from './VideoNote.ts';
 export { Voice } from './Voice.ts';
 export { WebPage } from './WebPage.ts';
+export { LinkPreviewOptions } from './LinkPreviewOptions.ts';

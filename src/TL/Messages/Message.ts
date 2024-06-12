@@ -110,6 +110,7 @@ export interface TypeMessage {
   ttl?: number;
   replyToStoryId?: number;
   repliedStoryFrom?: Advanceds.Chat;
+  linkPreviewOptions?: Medias.LinkPreviewOptions;
 }
 export class Message extends TLObject {
   id!: number;
@@ -189,6 +190,7 @@ export class Message extends TLObject {
   ttl?: number;
   replyToStoryId?: number;
   repliedStoryFrom?: Advanceds.Chat;
+  linkPreviewOptions?: Medias.LinkPreviewOptions;
   constructor(
     {
       id,
@@ -268,6 +270,7 @@ export class Message extends TLObject {
       ttl,
       replyToStoryId,
       repliedStoryFrom,
+      linkPreviewOptions,
     }: TypeMessage,
     client: Snake,
   ) {
@@ -349,6 +352,7 @@ export class Message extends TLObject {
     this.ttl = ttl;
     this.replyToStoryId = replyToStoryId;
     this.repliedStoryFrom = repliedStoryFrom;
+    this.linkPreviewOptions = linkPreviewOptions;
   }
   static async parse(
     client: Snake,
@@ -565,6 +569,7 @@ export class Message extends TLObject {
         let venue;
         let location;
         let webpage;
+        let linkPreviewOptions;
         if (message.media && !(message.media instanceof Raw.MessageMediaEmpty)) {
           if (message.media instanceof Raw.MessageMediaPhoto) {
             hasSpoilerMode = (message.media as Raw.MessageMediaPhoto).spoiler ?? false;
@@ -604,6 +609,13 @@ export class Message extends TLObject {
                 client,
                 (message.media as Raw.MessageMediaWebPage).webpage as Raw.WebPage,
               );
+            }
+            linkPreviewOptions = Medias.LinkPreviewOptions.parse(
+              client,
+              message.media as Raw.MessageMediaWebPage,
+            );
+            if (message.invertMedia !== undefined) {
+              linkPreviewOptions.showAboveText = message.invertMedia;
             }
           }
           if (message.media instanceof Raw.MessageMediaDocument) {
@@ -679,9 +691,16 @@ export class Message extends TLObject {
             venue,
             location,
             webpage,
+            linkPreviewOptions,
             id: message.id,
-            text: !message.media ? message.message : undefined,
-            caption: message.media ? message.message : undefined,
+            text:
+              !message.media || (message.media && message.media instanceof Raw.MessageMediaWebPage)
+                ? message.message
+                : undefined,
+            caption:
+              message.media && !(message.media instanceof Raw.MessageMediaWebPage)
+                ? message.message
+                : undefined,
             captionEntities: message.media ? entities : undefined,
             entities: !message.media ? entities : undefined,
             outgoing: message.out,

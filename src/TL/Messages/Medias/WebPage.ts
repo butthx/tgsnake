@@ -36,6 +36,7 @@ export class WebPage extends TLObject {
   embedHeight?: number;
   duration?: number;
   author?: string;
+  isLargeMedia?: boolean;
   constructor(
     {
       id,
@@ -56,6 +57,7 @@ export class WebPage extends TLObject {
       embedHeight,
       duration,
       author,
+      isLargeMedia,
     }: {
       id: bigint;
       url: string;
@@ -75,6 +77,7 @@ export class WebPage extends TLObject {
       embedHeight?: number;
       duration?: number;
       author?: string;
+      isLargeMedia?: boolean;
     },
     client: Snake,
   ) {
@@ -97,6 +100,7 @@ export class WebPage extends TLObject {
     this.embedHeight = embedHeight;
     this.duration = duration;
     this.author = author;
+    this.isLargeMedia = isLargeMedia;
   }
   static parse(client: Snake, webpage: Raw.WebPage) {
     let audio;
@@ -150,6 +154,7 @@ export class WebPage extends TLObject {
         embedHeight: webpage.embedHeight,
         duration: webpage.duration,
         author: webpage.author,
+        isLargeMedia: webpage.hasLargeMedia,
       },
       client,
     );
