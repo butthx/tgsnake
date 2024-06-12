@@ -29,6 +29,8 @@ import {
   download,
   type DownloadParams,
   deleteMessages,
+  sendPhoto,
+  type sendPhotoParams,
 } from './Messages/index.ts';
 import { getParticipants, type getParticipantsParams } from './Chats/index.ts';
 
@@ -170,6 +172,13 @@ export class Telegram extends TLObject {
     more?: sendAnimationParams,
   ) {
     return sendAnimation(this.client!, chatId, video, more);
+  }
+  sendPhoto(
+    chatId: bigint | string,
+    photo: string | Buffer | Readable | Files.File,
+    more?: sendPhotoParams,
+  ) {
+    return sendPhoto(this.client!, chatId, photo, more);
   }
   /**
    * Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
