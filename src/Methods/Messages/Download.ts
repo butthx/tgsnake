@@ -8,7 +8,14 @@
  * it under the terms of the MIT License as published.
  */
 
-import { FileId, Raw, DOCUMENT_TYPES, Files } from '../../platform.deno.ts';
+import {
+  FileId,
+  Raw,
+  DOCUMENT_TYPES,
+  Files,
+  FileType,
+  ThumbnailSource,
+} from '../../platform.deno.ts';
 import type { Snake } from '../../Client/index.ts';
 
 export interface DownloadParams {
@@ -30,6 +37,34 @@ export async function download(
         accessHash: media.accessHash,
         fileReference: media.fileReference as Buffer,
         thumbSize: 'y',
+      }),
+      dcId: media.dcId,
+      limit,
+      offset,
+    });
+  }
+  if (media.fileType === FileType.CHAT_PHOTO) {
+    return client.core.downloadStream({
+      file: new Raw.InputPeerPhotoFileLocation({
+        photoId: media.id,
+        big: media.thumbnailSource === ThumbnailSource.CHAT_PHOTO_BIG,
+        peer: await client.core.resolvePeer(media.chatId!),
+      }),
+      dcId: media.dcId,
+      limit,
+      offset,
+    });
+  }
+  // photo
+  if (media.thumbnailSource === ThumbnailSource.LEGACY) {
+    return client.core.downloadStream({
+      file: new Raw.InputPhotoLegacyFileLocation({
+        id: media.id,
+        accessHash: media.accessHash,
+        fileReference: media.fileReference as Buffer,
+        volumeId: media.volumeId!,
+        localId: media.localId!,
+        secret: media.secret!,
       }),
       dcId: media.dcId,
       limit,
