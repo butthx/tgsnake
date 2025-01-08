@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -8,7 +8,7 @@
  * it under the terms of the MIT License as published.
  */
 import { Raw } from '../platform.deno.ts';
-import type { TypeUpdate, CallbackQuery } from '../TL/Updates/index.ts';
+import { type TypeUpdate, type CallbackQuery, Update } from '../TL/Updates/index.ts';
 import type {
   Message,
   InlineQuery,
@@ -102,7 +102,7 @@ export type FilterQuery<T, P extends keyof T> = T & {
   [K in P]-?: T[K];
 };
 export function filter(key: string | string[], ctx: TypeUpdate | Raw.TypeUpdates) {
-  const aliases = {
+  const aliases: { [key: string]: string } = {
     cb: 'callbackQuery',
     msg: 'message',
     editMsg: 'editedMessage',
@@ -110,19 +110,35 @@ export function filter(key: string | string[], ctx: TypeUpdate | Raw.TypeUpdates
   };
   if (Array.isArray(key)) {
     for (const k of key) {
-      if (k === 'any' || ctx[k] || ('className' in ctx && k === ctx.className)) return true;
-      let sk = k.split('.');
+      if (
+        k === 'any' ||
+        (ctx[k as keyof typeof ctx] && ctx instanceof Update) ||
+        ('className' in ctx && k === ctx.className)
+      )
+        return true;
+      const sk = k.split('.');
       if (sk.length) {
-        if (ctx[aliases[sk[0]]] && ctx[aliases[sk[0]]][sk[1]] !== undefined) {
+        if (
+          ctx[aliases[sk[0]] as keyof typeof ctx] &&
+          ctx[aliases[sk[0]] as keyof typeof ctx][sk[1]] !== undefined
+        ) {
           return true;
         }
       }
     }
   } else {
-    if (key === 'any' || ctx[key] || ('className' in ctx && key === ctx.className)) return true;
-    let sk = key.split('.');
+    if (
+      key === 'any' ||
+      (ctx[key as keyof typeof ctx] && ctx instanceof Update) ||
+      ('className' in ctx && key === ctx.className)
+    )
+      return true;
+    const sk = key.split('.');
     if (sk.length) {
-      if (ctx[aliases[sk[0]]] && ctx[aliases[sk[0]]][sk[1]] !== undefined) {
+      if (
+        ctx[aliases[sk[0]] as keyof typeof ctx] &&
+        ctx[aliases[sk[0]] as keyof typeof ctx][sk[1]] !== undefined
+      ) {
         return true;
       }
     }

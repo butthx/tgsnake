@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -68,9 +68,11 @@ export class Conversation<T> {
       Combine<Combine<Combine<TypeUpdate, ContextUpdate>, Raw.TypeUpdates>, T>
     > = (context, next) => {
       if (!job.resolved) {
-        // @ts-ignore
-        if (filterUpdate(key, context) && filter(context)) {
-          job.resolve(context);
+        if (
+          filterUpdate(key, context) &&
+          filter(context as unknown as Combine<Combine<FilterContext[K], ContextUpdate>, T>)
+        ) {
+          job.resolve(context as unknown as Combine<Combine<FilterContext[K], ContextUpdate>, T>);
           return this.end();
         }
       }

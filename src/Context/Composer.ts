@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -75,8 +75,7 @@ export async function run<C>(middleware: MiddlewareFn<C>, ctx: C) {
  * Composer has handlers such as 'command', 'hear', 'action' and many more.
  */
 export class Composer<T = {}>
-  implements
-    MiddlewareObj<Combine<Combine<Combine<TypeUpdate, ContextUpdate>, Raw.TypeUpdates>, T>>
+  implements MiddlewareObj<Combine<Combine<Combine<TypeUpdate, ContextUpdate>, Raw.TypeUpdates>, T>>
 {
   /** @ignore */
   private handler!: MiddlewareFn<

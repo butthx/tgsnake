@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -8,7 +8,7 @@
  * it under the terms of the MIT License as published.
  */
 
-import packages from '../package.json' assert { type: 'json' };
+import packages from '../package.json' with { type: 'json' };
 
 export const version = packages.version;
 export const isBeta = packages.isBeta;

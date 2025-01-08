@@ -1,0 +1,12 @@
+{
+  "nodeModulesDir": "auto",
+  "lock": false,
+  "imports": {
+    "npm:ip-address@9.0.5": "https://cdn.skypack.dev/ip-address@9.0.5?dts"
+  },
+  "scopes": {
+    "https://deno.land/x/deno_socks@v2.8.3/client/socksclient.ts": {
+      "npm:ip-address@9.0.5": "https://cdn.skypack.dev/ip-address@9.0.5?dts"
+    }
+  }
+}

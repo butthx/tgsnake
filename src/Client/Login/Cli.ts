@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -9,7 +9,7 @@
  */
 import type { Snake } from '../Snake.ts';
 import { Logger } from '../../Context/Logger.ts';
-import { Client, Raw, Clients, prompts, sysprc } from '../../platform.deno.ts';
+import { Storages, Client, Raw, prompts, sysprc } from '../../platform.deno.ts';
 const onCancel = () => {
   Logger.info('Aborting prompt!!');
   sysprc.exit(1);
@@ -27,16 +27,13 @@ export async function LoginWithCLI(snake: Snake): Promise<Raw.users.UserFull | u
   }
   Logger.debug('Creating client.');
   snake._client = new Client(
-    // @ts-ignore
-    snake._options.login.session,
+    snake._options.login.session as unknown as Storages.AbstractSession,
     snake._options.apiHash,
     snake._options.apiId,
     snake._options.clientOptions,
   );
-  // @ts-ignore
-  await snake._options.login.session.load();
-  // @ts-ignore
-  if (!snake._options.login.session?.authKey) {
+  await (snake._options.login.session as unknown as Storages.AbstractSession).load();
+  if (!(snake._options.login.session as unknown as Storages.AbstractSession).authKey) {
     if (snake._options.login.botToken) {
       Logger.debug('Login using bot token.');
       const user = await snake._client.start({
@@ -49,8 +46,7 @@ export async function LoginWithCLI(snake: Snake): Promise<Raw.users.UserFull | u
             : ``
         } Loggined as: `,
       );
-      // @ts-ignore
-      await snake._options.login.session.save();
+      await (snake._options.login.session as unknown as Storages.AbstractSession).save();
       return user;
     }
     const loginAs = await AskLoginAs();
@@ -68,8 +64,7 @@ export async function LoginWithCLI(snake: Snake): Promise<Raw.users.UserFull | u
             : ``
         } Loggined as: `,
       );
-      // @ts-ignore
-      await snake._options.login.session.save();
+      await (snake._options.login.session as unknown as Storages.AbstractSession).save();
       return user;
     }
     const user = await snake._client.start({
@@ -85,12 +80,11 @@ export async function LoginWithCLI(snake: Snake): Promise<Raw.users.UserFull | u
         snake._options.login.forceDotSession ? `(${snake._options.login.sessionName}.session)` : ``
       } Loggined as: `,
     );
-    // @ts-ignore
-    await snake._options.login.session.save();
+    await (snake._options.login.session as unknown as Storages.AbstractSession).save();
     return user;
   } else {
-    await Clients.Session.connect(snake._client);
-    return await Clients.Auth.getMe(snake._client);
+    await snake.connect();
+    return await snake.getMe();
   }
 }
 async function AskApiId(snake: Snake): Promise<string> {

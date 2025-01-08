@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -225,7 +225,7 @@ export class MainContext<T> extends Composer<T> {
     return parsedUpdate;
   }
 
-  syncChannelUpdate(client) {
+  syncChannelUpdate(client: Snake) {
     return async () => {
       if (client._options!.experimental!.alwaysSync) {
         for (const [channelId, ptsInfo] of this._localPtsChat) {

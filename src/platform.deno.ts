@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -8,6 +8,13 @@
  * it under the terms of the MIT License as published.
  */
 
+import { lookup as mimetypes } from 'https://deno.land/x/mrmime@v1.0.1/mod.ts';
+import * as path from 'https://deno.land/std@0.182.0/path/mod.ts';
+import * as fs from 'node:fs';
+import prompts from 'https://esm.sh/prompts@2.4.2?no-dts';
+
+export { Readable, Writable, Duplex } from 'node:stream';
+export { Buffer } from 'node:buffer';
 export {
   Raw,
   Helpers,
@@ -19,7 +26,7 @@ export {
   Files,
   Cryptos,
   Errors,
-} from 'https://deno.land/x/tgsnake_core@1.13.5/src/index.ts';
+} from 'https://deno.land/x/tgsnake_core@1.13.13/src/index.ts';
 export {
   Writer,
   base64_url_encode,
@@ -32,12 +39,6 @@ export {
 } from 'https://deno.land/x/tgsnake_fileid@2.1.0/src/index.ts';
 export { Parser, type Entities } from 'https://deno.land/x/tgsnake_parser@2.1.0/src/index.ts';
 export { Logger, type TypeLogLevel } from 'https://deno.land/x/tgsnake_log/src/index.ts';
-import { lookup as mimetypes } from 'https://deno.land/x/mrmime@v1.0.1/mod.ts';
-import * as path from 'https://deno.land/std@0.182.0/path/mod.ts';
-import * as fs from 'node:fs';
-import prompts from 'https://esm.sh/prompts@2.4.2';
-export { Readable, Writable, Duplex } from 'node:stream';
-export { Buffer } from 'node:buffer';
 export { path, prompts, fs, mimetypes };
 export const { cwd } = Deno;
 export const isBrowser = false;

@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -10,6 +10,7 @@
 import {
   Raw,
   Client,
+  Clients,
   Storages,
   Sessions,
   TypeLogLevel,
@@ -257,7 +258,7 @@ export class Snake<T = {}> extends MainContext<T> {
       const plugin =
         this._plugin.getEventHandler('onLogin')[this._plugin.getEventHandler('onLogin').length - 1];
       try {
-        let user = await plugin({ client: this });
+        const user = await plugin({ client: this });
         if (user) {
           this._me = (user as unknown as Raw.users.UserFull).users[0] as Raw.User;
         }
@@ -265,7 +266,7 @@ export class Snake<T = {}> extends MainContext<T> {
         Logger.error(`Failed to running plug-in (onLogin) ${plugin.name}`, error);
       }
     } else {
-      let user = await LoginWithCLI(this);
+      const user = await LoginWithCLI(this);
       if (user) {
         this._me = (user as Raw.users.UserFull).users[0] as Raw.User;
       }
@@ -299,7 +300,6 @@ export class Snake<T = {}> extends MainContext<T> {
     }
     return true;
   }
-
   restart() {
     this._client._session.restart();
     this._cacheMessage = new Map();
@@ -307,7 +307,15 @@ export class Snake<T = {}> extends MainContext<T> {
     this._commonBox = new Map();
     this._localPtsChat = new Map();
   }
-
+  getMe() {
+    return Clients.Auth.getMe.call(this._client);
+  }
+  connect() {
+    return Clients.Session.connect.call(this._client);
+  }
+  exportSession() {
+    return this._client.exportSession();
+  }
   get core(): Client {
     return this._client;
   }

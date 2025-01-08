@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -9,7 +9,7 @@
  */
 import type { Snake } from '../Client/index.ts';
 import type { Telegram } from '../Methods/Telegram.ts';
-import type { Client } from '@tgsnake/core';
+import type { Client } from '../platform.deno.ts';
 
 export class TLObject {
   protected _client!: Snake;

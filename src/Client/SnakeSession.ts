@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -31,37 +31,37 @@ export class SnakeSession extends Storages.BaseSession {
     this._cacheDir = cacheDir;
     this._cacheExt = cacheExt;
   }
-  async load() {
-    let sessionName = `${this._name}.${this._sessionExt.replace(/^\./, '')}`;
+  override async load() {
+    const sessionName = `${this._name}.${this._sessionExt.replace(/^\./, '')}`;
     if (fs.existsSync(path.join(this._sessionDir, sessionName))) {
-      let start = Math.floor(Date.now() / 1000);
-      let bytes = fs.readFileSync(path.join(this._sessionDir, sessionName));
-      Logger.debug(`Session have a ${bytes.length} bytes`);
+      const start = Math.floor(Date.now() / 1000);
+      const bytes = fs.readFileSync(path.join(this._sessionDir, sessionName));
+      Logger.debug(`Session have a ${Buffer.byteLength(bytes)} bytes`);
       this._dcId = bytes.readUInt8(0); // 1
       Logger.debug(`Found dcId: ${this._dcId}.`);
       this._apiId = bytes.readUInt32LE(1); // 5
       Logger.debug(`Found apiId: ${this._apiId}.`);
       this._testMode = bytes.readUInt8(5) ? true : false; // 6
       Logger.debug(`Found testMode: ${this._testMode}.`);
-      this._authKey = bytes.slice(6, 262); // 262
+      this._authKey = bytes.subarray(6, 262); // 262
       Logger.debug(`Found authKey: ${this._authKey.length} bytes.`);
-      this._userId = BigInt(`0x${bytes.slice(262, 270).toString('hex')}`); // 270
+      this._userId = BigInt(`0x${bytes.subarray(262, 270).toString('hex')}`); // 270
       Logger.debug(`Found userId: ${this._userId}.`);
       this._isBot = bytes.readUInt8(270) ? true : false; // 271
       Logger.debug(`Found isBot: ${this._isBot}.`);
       Logger.debug(`Done parsing string session (${Math.floor(Date.now() / 1000) - start}s)`);
     }
     const [peers, secretChats] = await this._loadCache();
-    for (let peer of peers) {
+    for (const peer of peers) {
       this._peers.set(peer[0], peer);
     }
-    for (let secretChat of secretChats) {
+    for (const secretChat of secretChats) {
       this._secretChats.set(secretChat.id, secretChat);
     }
   }
-  async save() {
-    let sessionName = `${this._name}.${this._sessionExt.replace(/^\./, '')}`;
-    let cacheName = `${this._name}.${this._cacheExt.replace(/^\./, '')}`;
+  override async save() {
+    const sessionName = `${this._name}.${this._sessionExt.replace(/^\./, '')}`;
+    const cacheName = `${this._name}.${this._cacheExt.replace(/^\./, '')}`;
     // save session when it unavailable.
     if (!fs.existsSync(path.join(this._sessionDir, sessionName))) {
       fs.writeFileSync(
@@ -79,36 +79,44 @@ export class SnakeSession extends Storages.BaseSession {
   private async _loadCache(): Promise<
     [
       Array<
-        [id: bigint, accessHash: bigint, type: string, username?: string, phoneNumber?: string]
+        [
+          id: bigint,
+          accessHash: bigint,
+          type: string,
+          username?: Array<string>,
+          phoneNumber?: string,
+        ]
       >,
       Array<Storages.SecretChat>,
     ]
   > {
-    let peer: Array<any> = [];
-    let cacheName = `${this._name}.${this._cacheExt.replace(/^\./, '')}`;
+    const peer: Array<
+      [id: bigint, accessHash: bigint, type: string, username?: Array<string>, phoneNumber?: string]
+    > = [];
+    const cacheName = `${this._name}.${this._cacheExt.replace(/^\./, '')}`;
     let e2e: Array<Storages.SecretChat> = [];
     if (fs.existsSync(path.join(this._cacheDir, cacheName))) {
-      let buffer = fs.readFileSync(path.join(this._cacheDir, cacheName));
+      const buffer = fs.readFileSync(path.join(this._cacheDir, cacheName));
       if (buffer[0] === 2) {
         Logger.info(`Load cache version: 2`);
-        let bytes = new Raws.BytesIO(buffer.slice(1));
+        const bytes = new Raws.BytesIO(buffer.subarray(1));
         // bytes[version + CacheBytesLength + CacheBytes[VectorLength + VectorBytes[bytes[contentLength + content]]] + E2EBytesLength + E2E]
-        let cacheLength = await Raws.Primitive.Int.read(bytes);
-        let cacheBytes = new Raws.BytesIO(await bytes.read(cacheLength));
-        let peerLength = await Raws.Primitive.Int.read(cacheBytes);
-        let E2ELength = await Raws.Primitive.Int.read(bytes);
+        const cacheLength = await Raws.Primitive.Int.read(bytes);
+        const cacheBytes = new Raws.BytesIO(await bytes.read(cacheLength));
+        const peerLength = await Raws.Primitive.Int.read(cacheBytes);
+        const E2ELength = await Raws.Primitive.Int.read(bytes);
         if (E2ELength) {
           e2e = await this._loadE2E(await bytes.read(E2ELength));
         }
         for (let i = 0; i < peerLength; i++) {
-          let count = await Raws.Primitive.Int.read(cacheBytes);
+          const count = await Raws.Primitive.Int.read(cacheBytes);
           peer.push(await buildPeerFromBytes(cacheBytes.read(count)));
         }
       } else {
         // legacy version
         Logger.info(`Load cache version: 1`);
-        let bytes = new Raws.BytesIO(buffer);
-        let length = await Raws.Primitive.Int.read(bytes);
+        const bytes = new Raws.BytesIO(buffer);
+        const length = await Raws.Primitive.Int.read(bytes);
         // bytes[VectorLength + VectorBytes[bytes[contentLength + content]]]
         for (let i = 0; i < length; i++) {
           let count = await Raws.Primitive.Int.read(bytes);
@@ -118,13 +126,19 @@ export class SnakeSession extends Storages.BaseSession {
     }
     return [
       peer as unknown as Array<
-        [id: bigint, accessHash: bigint, type: string, username?: string, phoneNumber?: string]
+        [
+          id: bigint,
+          accessHash: bigint,
+          type: string,
+          username?: Array<string>,
+          phoneNumber?: string,
+        ]
       >,
       e2e,
     ];
   }
   private async _loadE2E(bytes: Buffer): Promise<Array<Storages.SecretChat>> {
-    let secretChat: Array<Storages.SecretChat> = [];
+    const secretChat: Array<Storages.SecretChat> = [];
     if (bytes[0] === 1) {
       let b = new Raws.BytesIO(bytes.slice(1));
       let length = await Raws.Primitive.Int.read(b);
@@ -141,10 +155,10 @@ export class SnakeSession extends Storages.BaseSession {
    */
   private async _makeCache(): Promise<Buffer> {
     let count = 0;
-    let bytes = new Raws.BytesIO();
-    for (let [, value] of this._peers) {
+    const bytes = new Raws.BytesIO();
+    for (const [, value] of this._peers) {
       count += 1;
-      let content = await buildBytesFromPeer(value);
+      const content = await buildBytesFromPeer(value);
       bytes.write(Buffer.concat([Raws.Primitive.Int.write(content.length), content]));
     }
     let e2e = Buffer.alloc(0);
@@ -163,10 +177,10 @@ export class SnakeSession extends Storages.BaseSession {
   }
   private async _makeE2E(): Promise<Buffer> {
     let count = 0;
-    let bytes = new Raws.BytesIO();
-    for (let [, value] of this._secretChats) {
+    const bytes = new Raws.BytesIO();
+    for (const [, value] of this._secretChats) {
       count += 1;
-      let content = await buildBytesFromSecretChat(value);
+      const content = await buildBytesFromSecretChat(value);
       bytes.write(Buffer.concat([Raws.Primitive.Int.write(content.length), content]));
     }
     // bytes[version + VectorLength - VectorBytes[bytes[contentLength + content]]]
@@ -188,7 +202,7 @@ export class SnakeSession extends Storages.BaseSession {
     return toPrint;
   }
   /**@hidden*/
-  toJSON(): { [key: string]: any } {
+  override toJSON(): { [key: string]: any } {
     const toPrint: { [key: string]: any } = {
       _: this.constructor.name,
     };
@@ -203,7 +217,7 @@ export class SnakeSession extends Storages.BaseSession {
     return toPrint;
   }
   /** @hidden */
-  toString(): string {
+  override toString(): string {
     return `[constructor of ${this.constructor.name}] ${JSON.stringify(this, null, 2)}`;
   }
 }
@@ -212,12 +226,18 @@ export class SnakeSession extends Storages.BaseSession {
  * @param peer {Array} - Peer will be convert to bytes
  */
 export function buildBytesFromPeer(
-  peer: [id: bigint, accessHash: bigint, type: string, username?: string, phoneNumber?: string],
+  peer: [
+    id: bigint,
+    accessHash: bigint,
+    type: string,
+    username?: Array<string>,
+    phoneNumber?: string,
+  ],
 ): Buffer {
   let bytes = new Raws.BytesIO();
   let flags = 0;
   if (peer[3]) {
-    flags |= 1 << 4;
+    flags |= 1 << 6;
   }
   if (peer[4]) {
     flags |= 1 << 5;
@@ -227,7 +247,7 @@ export function buildBytesFromPeer(
   bytes.write(Raws.Primitive.Long.write(peer[1]));
   bytes.write(Raws.Primitive.String.write(peer[2]));
   if (peer[3]) {
-    bytes.write(Raws.Primitive.String.write(peer[3]));
+    bytes.write(Raws.Primitive.Vector.write(peer[3], Raws.Primitive.String));
   }
   if (peer[4]) {
     bytes.write(Raws.Primitive.String.write(peer[4]));
@@ -241,17 +261,18 @@ export function buildBytesFromPeer(
 export async function buildPeerFromBytes(
   bytes: Buffer,
 ): Promise<
-  [id: bigint, accessHash: bigint, type: string, username?: string, phoneNumber?: string]
+  [id: bigint, accessHash: bigint, type: string, username?: Array<string>, phoneNumber?: string]
 > {
   let b = new Raws.BytesIO(bytes);
-  // @ts-ignore
   let results: Array<any> = [];
   let flags = await Raws.Primitive.Int.read(b);
   results.push(await Raws.Primitive.Long.read(b));
   results.push(await Raws.Primitive.Long.read(b));
   results.push(await Raws.Primitive.String.read(b));
   if (flags & (1 << 4)) {
-    results.push(await Raws.Primitive.String.read(b));
+    results.push([await Raws.Primitive.String.read(b)]);
+  } else if (flags & (1 << 6)) {
+    results.push(await Raws.Primitive.Vector.read(b), Raws.Primitive.String);
   }
   if (flags & (1 << 5)) {
     results.push(await Raws.Primitive.String.read(b));
@@ -260,13 +281,13 @@ export async function buildPeerFromBytes(
     id: bigint,
     accessHash: bigint,
     type: string,
-    username?: string,
+    username?: Array<string>,
     phoneNumber?: string,
   ];
 }
 
 export function buildBytesFromSecretChat(secretChat: Storages.SecretChat): Buffer {
-  let bytes = new Raws.BytesIO();
+  const bytes = new Raws.BytesIO();
   let flags = 0;
   if (secretChat.rekeyStep) {
     flags |= 1 << 3;
@@ -309,13 +330,13 @@ export function buildBytesFromSecretChat(secretChat: Storages.SecretChat): Buffe
   return bytes.buffer;
 }
 export async function buildSecretChatFromBytes(bytes: Buffer): Promise<Storages.SecretChat> {
-  let b = new Raws.BytesIO(bytes);
-  let flags = await Raws.Primitive.Int.read(b);
+  const b = new Raws.BytesIO(bytes);
+  const flags = await Raws.Primitive.Int.read(b);
   const id = await Raws.Primitive.Int.read(b);
   const accessHash = await Raws.Primitive.Long.read(b);
   const isAdmin = await Raws.Primitive.Bool.read(b);
   const authKey = await Raws.Primitive.Bytes.read(b);
-  let secretChat = new Storages.SecretChat({
+  const secretChat = new Storages.SecretChat({
     id,
     accessHash,
     isAdmin,
@@ -354,7 +375,7 @@ export function generateName(
 ): string {
   let i = 0;
   while (true) {
-    let name = i === 0 ? base : `${base}${i}`;
+    const name = i === 0 ? base : `${base}${i}`;
     if (
       !fs.existsSync(path.join(loginPath, `${name}.${loginExt.replace(/^\./, '')}`)) &&
       !fs.existsSync(path.join(cachePath, `${name}.${cacheExt.replace(/^\./, '')}`))

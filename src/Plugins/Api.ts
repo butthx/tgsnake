@@ -1,6 +1,6 @@
 /**
  * tgsnake - Telegram MTProto framework for nodejs.
- * Copyright (C) 2024 butthx <https://github.com/butthx>
+ * Copyright (C) 2025 butthx <https://github.com/butthx>
  *
  * THIS FILE IS PART OF TGSNAKE
  *
@@ -128,7 +128,7 @@ export class TgsnakeApi {
   constructor() {}
   addEventHandler<K extends keyof ListSetterEventHandler>(
     filter: K,
-    func: ListGetterEventHandler[K],
+    func: ListSetterEventHandler[K],
   ): void {
     if ('beforeStart' === filter) {
       this._beforeStartHandler.push(func as unknown as CallbackFn);
@@ -154,27 +154,25 @@ export class TgsnakeApi {
   }
   getEventHandler<K extends keyof ListGetterEventHandler>(filter: K): ListGetterEventHandler[K] {
     if ('beforeStart' === filter) {
-      return this._beforeStartHandler;
+      return this._beforeStartHandler as ListGetterEventHandler[K];
     }
     if ('afterStart' === filter) {
-      return this._afterStartHandler;
+      return this._afterStartHandler as ListGetterEventHandler[K];
     }
     if ('onLogin' === filter) {
-      // @ts-ignore
-      return this._onLoginHandler;
+      return this._onLoginHandler as unknown as ListGetterEventHandler[K];
     }
     if ('gracefullyStop' === filter) {
-      return this._gracefullyStopHandler;
+      return this._gracefullyStopHandler as ListGetterEventHandler[K];
     }
     if ('beforeParseUpdate' === filter) {
-      return this._beforeParseUpdateHandler;
+      return this._beforeParseUpdateHandler as ListGetterEventHandler[K];
     }
     if ('onParseUpdate' === filter) {
-      // @ts-ignore
-      return this._onParseUpdateHandler;
+      return this._onParseUpdateHandler as unknown as ListGetterEventHandler[K];
     }
     if ('afterParseUpdate' === filter) {
-      return this._afterParseUpdateHandler;
+      return this._afterParseUpdateHandler as unknown as ListGetterEventHandler[K];
     }
     return [];
   }
