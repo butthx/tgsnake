@@ -17,4 +17,5 @@ export {
   type ListGetterEventHandler,
   type CallbackFnLogin,
   type CallbackFnUpdate,
+  type Props,
 } from './Api.ts';

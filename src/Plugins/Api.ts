@@ -11,26 +11,34 @@ import { type Raw } from '../platform.deno.ts';
 import type { Snake } from '../Client/Snake.ts';
 import type { Update } from '../TL/Updates/Update.ts';
 
+export interface Props {
+  /**
+   * Modifiable tgsnake client.
+   */
+  client: Snake;
+  /**
+   * Updates provided from Telegram to be parsed.
+   */
+  update?: Raw.TypeUpdates;
+}
 /**
  * A callback function that will be executed as a handler according to the events registered.
- * @param {ApiParams} props - Interactable Api.
+ * @param {Props} props - Interactable Api.
  */
-export type CallbackFn = (props: ApiParams) => any | Promise<any>;
+export type CallbackFn = (props: Props) => any | Promise<any>;
 /**
  * A callback function that will be executed as a handler according to the events registered.
  * The callback function must be return Raw.users.UserFull.
- * @param {ApiParams} props - Interactable Api.
+ * @param {Props} props - Interactable Api.
  */
-export type CallbackFnLogin = (
-  props: ApiParams,
-) => Raw.users.UserFull | Promise<Raw.users.UserFull>;
+export type CallbackFnLogin = (props: Props) => Raw.users.UserFull | Promise<Raw.users.UserFull>;
 /**
  * A callback function that will be executed as a handler according to the events registered.
  * The callback function must be return extended class from Update or class from TypeUpdates.
- * @param {ApiParams} props - Interactable Api.
+ * @param {Props} props - Interactable Api.
  */
 export type CallbackFnUpdate = (
-  props: ApiParams,
+  props: Props,
 ) => Array<Update | Raw.TypeUpdates> | Promise<Array<Update | Raw.TypeUpdates>>;
 /**
  * A function for plug-in initiation, this function must register a callback function as an event handler.
@@ -103,16 +111,6 @@ export interface ListSetterEventHandler {
    * When receiving the latest update from Telegram and after being executed by the 'default parser' or 'onParseUpdate plugin' the registered function will be called.
    */
   afterParseUpdate: CallbackFn;
-}
-export interface ApiParams {
-  /**
-   * Modifiable tgsnake client.
-   */
-  client: Snake;
-  /**
-   * Updates provided from Telegram to be parsed.
-   */
-  update?: Raw.TypeUpdates;
 }
 /**
  * Plugin construction that allows other developers to access the api from tgsnake.
