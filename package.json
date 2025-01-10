@@ -1,6 +1,6 @@
 {
   "name": "tgsnake",
-  "version": "3.3.3",
+  "version": "3.3.3-hotfix.1",
   "description": "Telegram MTProto framework for nodejs.",
   "main": "./lib/src/index.js",
   "scripts": {
