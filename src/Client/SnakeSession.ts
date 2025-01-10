@@ -119,7 +119,7 @@ export class SnakeSession extends Storages.BaseSession {
         const length = await Raws.Primitive.Int.read(bytes);
         // bytes[VectorLength + VectorBytes[bytes[contentLength + content]]]
         for (let i = 0; i < length; i++) {
-          let count = await Raws.Primitive.Int.read(bytes);
+          const count = await Raws.Primitive.Int.read(bytes);
           peer.push(await buildPeerFromBytes(bytes.read(count)));
         }
       }
@@ -140,11 +140,11 @@ export class SnakeSession extends Storages.BaseSession {
   private async _loadE2E(bytes: Buffer): Promise<Array<Storages.SecretChat>> {
     const secretChat: Array<Storages.SecretChat> = [];
     if (bytes[0] === 1) {
-      let b = new Raws.BytesIO(bytes.slice(1));
-      let length = await Raws.Primitive.Int.read(b);
+      const b = new Raws.BytesIO(bytes.subarray(1));
+      const length = await Raws.Primitive.Int.read(b);
       // bytes[version + VectorLength + VectorBytes[bytes[contentLength + content]]]
       for (let i = 0; i < length; i++) {
-        let count = await Raws.Primitive.Int.read(b);
+        const count = await Raws.Primitive.Int.read(b);
         secretChat.push(await buildSecretChatFromBytes(b.read(count)));
       }
     }
@@ -234,7 +234,7 @@ export function buildBytesFromPeer(
     phoneNumber?: string,
   ],
 ): Buffer {
-  let bytes = new Raws.BytesIO();
+  const bytes = new Raws.BytesIO();
   let flags = 0;
   if (peer[3]) {
     flags |= 1 << 6;
@@ -247,7 +247,7 @@ export function buildBytesFromPeer(
   bytes.write(Raws.Primitive.Long.write(peer[1]));
   bytes.write(Raws.Primitive.String.write(peer[2]));
   if (peer[3]) {
-    bytes.write(Raws.Primitive.Vector.write(peer[3], Raws.Primitive.String));
+    bytes.write(Raws.Primitive.Vector.write(peer[3] || [], Raws.Primitive.String));
   }
   if (peer[4]) {
     bytes.write(Raws.Primitive.String.write(peer[4]));
@@ -263,16 +263,16 @@ export async function buildPeerFromBytes(
 ): Promise<
   [id: bigint, accessHash: bigint, type: string, username?: Array<string>, phoneNumber?: string]
 > {
-  let b = new Raws.BytesIO(bytes);
-  let results: Array<any> = [];
-  let flags = await Raws.Primitive.Int.read(b);
+  const b = new Raws.BytesIO(bytes);
+  const results: Array<any> = [];
+  const flags = await Raws.Primitive.Int.read(b);
   results.push(await Raws.Primitive.Long.read(b));
   results.push(await Raws.Primitive.Long.read(b));
   results.push(await Raws.Primitive.String.read(b));
   if (flags & (1 << 4)) {
     results.push([await Raws.Primitive.String.read(b)]);
   } else if (flags & (1 << 6)) {
-    results.push(await Raws.Primitive.Vector.read(b), Raws.Primitive.String);
+    results.push(await Raws.Primitive.Vector.read(b, Raws.Primitive.String));
   }
   if (flags & (1 << 5)) {
     results.push(await Raws.Primitive.String.read(b));
